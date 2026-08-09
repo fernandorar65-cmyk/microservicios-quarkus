@@ -1,6 +1,6 @@
-package kahoot.clabs.gameplay.infrastructure.persistence.postgres.entity;
+package kahoot.clabs.infrastructure.persistence.postgres.entity;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,8 +8,6 @@ import java.util.UUID;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -18,15 +16,20 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-import kahoot.clabs.gameplay.infrastructure.persistence.postgres.enums.QuestionTypeJpa;
-import kahoot.clabs.gameplay.infrastructure.persistence.postgres.enums.SessionQuestionStatusJpa;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(
         name = "session_questions",
         uniqueConstraints = @UniqueConstraint(
-                name = "uq_session_questions_session_position",
-                columnNames = {"session_id", "position"}))
+                name = "uq_session_questions_session_order",
+                columnNames = {"session_id", "order_index"}))
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SessionQuestionJpaEntity {
 
     @Id
@@ -38,40 +41,32 @@ public class SessionQuestionJpaEntity {
     private GameSessionJpaEntity session;
 
     /** Conceptual reference to quiz-service question. No FK. */
-    @Column(name = "source_question_id", nullable = false, updatable = false)
+    @Column(name = "source_question_id")
     private UUID sourceQuestionId;
 
-    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
-    private String text;
+    @Column(name = "order_index", nullable = false)
+    private int orderIndex;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 30)
-    private QuestionTypeJpa type;
+    @Column(name = "points", nullable = false)
+    private int points;
 
-    @Column(name = "position", nullable = false)
-    private int position;
+    @Column(name = "time_limit_seconds", nullable = false)
+    private int timeLimitSeconds;
 
-    @Column(name = "time_limit")
-    private Integer timeLimit;
+    @Column(name = "title", length = 500)
+    private String title;
 
-    @Column(name = "points")
-    private Integer points;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private SessionQuestionStatusJpa status;
+    @Column(name = "question_type", length = 20)
+    private String questionType;
 
     @Column(name = "opened_at")
-    private Instant openedAt;
+    private LocalDateTime openedAt;
 
     @Column(name = "closed_at")
-    private Instant closedAt;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime closedAt;
 
     @OneToMany(
             mappedBy = "sessionQuestion",
@@ -79,119 +74,4 @@ public class SessionQuestionJpaEntity {
             orphanRemoval = true,
             fetch = FetchType.LAZY)
     private List<SessionAnswerOptionJpaEntity> answerOptions = new ArrayList<>();
-
-    protected SessionQuestionJpaEntity() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public GameSessionJpaEntity getSession() {
-        return session;
-    }
-
-    public void setSession(GameSessionJpaEntity session) {
-        this.session = session;
-    }
-
-    public UUID getSourceQuestionId() {
-        return sourceQuestionId;
-    }
-
-    public void setSourceQuestionId(UUID sourceQuestionId) {
-        this.sourceQuestionId = sourceQuestionId;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public QuestionTypeJpa getType() {
-        return type;
-    }
-
-    public void setType(QuestionTypeJpa type) {
-        this.type = type;
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
-    public Integer getTimeLimit() {
-        return timeLimit;
-    }
-
-    public void setTimeLimit(Integer timeLimit) {
-        this.timeLimit = timeLimit;
-    }
-
-    public Integer getPoints() {
-        return points;
-    }
-
-    public void setPoints(Integer points) {
-        this.points = points;
-    }
-
-    public SessionQuestionStatusJpa getStatus() {
-        return status;
-    }
-
-    public void setStatus(SessionQuestionStatusJpa status) {
-        this.status = status;
-    }
-
-    public Instant getOpenedAt() {
-        return openedAt;
-    }
-
-    public void setOpenedAt(Instant openedAt) {
-        this.openedAt = openedAt;
-    }
-
-    public Instant getClosedAt() {
-        return closedAt;
-    }
-
-    public void setClosedAt(Instant closedAt) {
-        this.closedAt = closedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<SessionAnswerOptionJpaEntity> getAnswerOptions() {
-        return answerOptions;
-    }
-
-    public void setAnswerOptions(List<SessionAnswerOptionJpaEntity> answerOptions) {
-        this.answerOptions = answerOptions;
-    }
 }

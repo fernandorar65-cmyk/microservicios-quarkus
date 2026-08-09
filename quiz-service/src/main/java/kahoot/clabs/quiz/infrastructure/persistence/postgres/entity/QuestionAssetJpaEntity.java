@@ -1,85 +1,54 @@
 package kahoot.clabs.quiz.infrastructure.persistence.postgres.entity;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-import kahoot.clabs.quiz.infrastructure.persistence.postgres.enums.MediaTypeJpa;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * JPA persistence model for question asset metadata (URL only, no binary).
- */
 @Entity
 @Table(name = "question_assets")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuestionAssetJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id", nullable = false, unique = true)
     private QuestionJpaEntity question;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "media_type", nullable = false, length = 30)
-    private MediaTypeJpa mediaType;
+    @Column(name = "type", nullable = false, length = 20)
+    private String type;
 
-    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "url", nullable = false, length = 1000)
     private String url;
 
+    @Column(name = "thumbnail_url", length = 1000)
+    private String thumbnailUrl;
+
+    @Column(name = "alt_text", length = 255)
+    private String altText;
+
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
+
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
-    protected QuestionAssetJpaEntity() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public QuestionJpaEntity getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(QuestionJpaEntity question) {
-        this.question = question;
-    }
-
-    public MediaTypeJpa getMediaType() {
-        return mediaType;
-    }
-
-    public void setMediaType(MediaTypeJpa mediaType) {
-        this.mediaType = mediaType;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

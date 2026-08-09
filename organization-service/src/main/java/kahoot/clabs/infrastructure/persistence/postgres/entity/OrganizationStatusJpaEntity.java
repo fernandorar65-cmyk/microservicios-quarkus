@@ -1,6 +1,5 @@
 package kahoot.clabs.infrastructure.persistence.postgres.entity;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -16,31 +15,22 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name = "permissions",
+        name = "organization_statuses",
         uniqueConstraints = @UniqueConstraint(
-                name = "uq_permissions_name_module",
-                columnNames = {"name", "module"}))
+                name = "uq_organization_statuses_name",
+                columnNames = "name"))
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PermissionJpaEntity {
+public class OrganizationStatusJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 150)
     private String name;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description", nullable = false, length = 100)
     private String description;
-
-    @Column(name = "module", nullable = false, length = 50)
-    private String module;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 }

@@ -1,4 +1,4 @@
-package kahoot.clabs.quiz.infrastructure.persistence.postgres.entity;
+package kahoot.clabs.infrastructure.persistence.postgres.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,34 +19,36 @@ import lombok.Setter;
 
 @Entity
 @Table(
-        name = "answer_options",
+        name = "organization_members",
         uniqueConstraints = @UniqueConstraint(
-                name = "uq_answer_options_question_order",
-                columnNames = {"question_id", "order_index"}))
+                name = "uq_organization_members_org_user",
+                columnNames = {"organization_id", "user_id"}))
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnswerOptionJpaEntity {
+public class OrganizationMemberJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id", nullable = false)
-    private QuestionJpaEntity question;
+    @JoinColumn(name = "organization_id", nullable = false)
+    private OrganizationJpaEntity organization;
 
-    @Column(name = "text", nullable = false, length = 500)
-    private String text;
+    /** External reference to identity-service user. No FK. */
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private UUID userId;
 
-    @Column(name = "is_correct", nullable = false)
-    private boolean correct;
+    /** External reference to identity-service role. No FK. */
+    @Column(name = "role_id")
+    private UUID roleId;
 
-    @Column(name = "explanation", columnDefinition = "TEXT")
-    private String explanation;
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
 
-    @Column(name = "order_index", nullable = false)
-    private int orderIndex;
+    @Column(name = "joined_at", nullable = false)
+    private LocalDateTime joinedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,127 +1,61 @@
--- Write model schema for organization-service
--- External references (created_by, user_id, invited_by) are UUID only — no cross-service FKs
+-- Organization write model — migrated from Kahoot CLABS monolith (V1 + V2 catalogs).
+-- External refs (user_id, role_id) are UUID only — no FK to identity-service.
+-- No organization_invitations (not in current schema).
 
--- ---------------------------------------------------------------------------
--- organizations
--- ---------------------------------------------------------------------------
 CREATE TABLE organizations (
-    id              UUID            NOT NULL,
-    name            VARCHAR(150)    NOT NULL,
-    slug            VARCHAR(100)    NOT NULL,
-    description     TEXT,
-    logo_url        VARCHAR(500),
-    status          VARCHAR(20)     NOT NULL,
-    created_by      UUID            NOT NULL,
-    created_at      TIMESTAMPTZ     NOT NULL,
-    updated_at      TIMESTAMPTZ     NOT NULL,
-
-    CONSTRAINT pk_organizations PRIMARY KEY (id),
-    CONSTRAINT uq_organizations_slug UNIQUE (slug),
-    CONSTRAINT ck_organizations_status CHECK (
-        status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING')
-    ),
-    CONSTRAINT ck_organizations_name_not_blank CHECK (btrim(name) <> ''),
-    CONSTRAINT ck_organizations_slug_not_blank CHECK (btrim(slug) <> '')
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(100) NOT NULL,
+    logo_url VARCHAR(500),
+    description TEXT,
+    timezone VARCHAR(64) NOT NULL,
+    language VARCHAR(10) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_organizations_slug UNIQUE (slug)
 );
 
-CREATE INDEX idx_organizations_status ON organizations (status);
-CREATE INDEX idx_organizations_created_by ON organizations (created_by);
-
--- ---------------------------------------------------------------------------
--- organization_departments (scoped per organization)
--- ---------------------------------------------------------------------------
-CREATE TABLE organization_departments (
-    id                  UUID            NOT NULL,
-    organization_id     UUID            NOT NULL,
-    name                VARCHAR(150)    NOT NULL,
-    description         TEXT,
-    created_at          TIMESTAMPTZ     NOT NULL,
-    updated_at          TIMESTAMPTZ     NOT NULL,
-
-    CONSTRAINT pk_organization_departments PRIMARY KEY (id),
-    CONSTRAINT fk_organization_departments_org
-        FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE,
-    CONSTRAINT uq_organization_departments_org_name UNIQUE (organization_id, name),
-    CONSTRAINT ck_organization_departments_name_not_blank CHECK (btrim(name) <> '')
-);
-
-CREATE INDEX idx_organization_departments_org_id ON organization_departments (organization_id);
-
--- ---------------------------------------------------------------------------
--- organization_jobs (scoped per organization)
--- ---------------------------------------------------------------------------
-CREATE TABLE organization_jobs (
-    id                  UUID            NOT NULL,
-    organization_id     UUID            NOT NULL,
-    name                VARCHAR(150)    NOT NULL,
-    description         TEXT,
-    created_at          TIMESTAMPTZ     NOT NULL,
-    updated_at          TIMESTAMPTZ     NOT NULL,
-
-    CONSTRAINT pk_organization_jobs PRIMARY KEY (id),
-    CONSTRAINT fk_organization_jobs_org
-        FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE,
-    CONSTRAINT uq_organization_jobs_org_name UNIQUE (organization_id, name),
-    CONSTRAINT ck_organization_jobs_name_not_blank CHECK (btrim(name) <> '')
-);
-
-CREATE INDEX idx_organization_jobs_org_id ON organization_jobs (organization_id);
-
--- ---------------------------------------------------------------------------
--- organization_members
--- ---------------------------------------------------------------------------
 CREATE TABLE organization_members (
-    id                  UUID            NOT NULL,
-    organization_id     UUID            NOT NULL,
-    user_id             UUID            NOT NULL,
-    status              VARCHAR(20)     NOT NULL,
-    department_id       UUID,
-    job_id              UUID,
-    joined_at           TIMESTAMPTZ,
-    created_at          TIMESTAMPTZ     NOT NULL,
-    updated_at          TIMESTAMPTZ     NOT NULL,
-
-    CONSTRAINT pk_organization_members PRIMARY KEY (id),
-    CONSTRAINT fk_organization_members_org
-        FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE,
-    CONSTRAINT fk_organization_members_department
-        FOREIGN KEY (department_id) REFERENCES organization_departments (id) ON DELETE SET NULL,
-    CONSTRAINT fk_organization_members_job
-        FOREIGN KEY (job_id) REFERENCES organization_jobs (id) ON DELETE SET NULL,
+    id UUID NOT NULL PRIMARY KEY,
+    organization_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    role_id UUID,
+    status VARCHAR(20) NOT NULL,
+    joined_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     CONSTRAINT uq_organization_members_org_user UNIQUE (organization_id, user_id),
-    CONSTRAINT ck_organization_members_status CHECK (
-        status IN ('INVITED', 'ACTIVE', 'SUSPENDED', 'REMOVED')
-    )
+    CONSTRAINT fk_organization_members_organization FOREIGN KEY (organization_id) REFERENCES organizations (id)
 );
 
-CREATE INDEX idx_organization_members_org_id ON organization_members (organization_id);
 CREATE INDEX idx_organization_members_user_id ON organization_members (user_id);
-CREATE INDEX idx_organization_members_status ON organization_members (status);
 
--- ---------------------------------------------------------------------------
--- organization_invitations
--- ---------------------------------------------------------------------------
-CREATE TABLE organization_invitations (
-    id                  UUID            NOT NULL,
-    organization_id     UUID            NOT NULL,
-    email               VARCHAR(255)    NOT NULL,
-    invited_by          UUID            NOT NULL,
-    status              VARCHAR(20)     NOT NULL,
-    token               VARCHAR(255),
-    expires_at          TIMESTAMPTZ,
-    created_at          TIMESTAMPTZ     NOT NULL,
-    updated_at          TIMESTAMPTZ     NOT NULL,
-
-    CONSTRAINT pk_organization_invitations PRIMARY KEY (id),
-    CONSTRAINT fk_organization_invitations_org
-        FOREIGN KEY (organization_id) REFERENCES organizations (id) ON DELETE CASCADE,
-    CONSTRAINT uq_organization_invitations_token UNIQUE (token),
-    CONSTRAINT ck_organization_invitations_status CHECK (
-        status IN ('PENDING', 'ACCEPTED', 'EXPIRED', 'REVOKED')
-    ),
-    CONSTRAINT ck_organization_invitations_email_not_blank CHECK (btrim(email) <> '')
+-- Global catalogs (no organization_id) — seeded from Java when needed.
+CREATE TABLE organization_departments (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    CONSTRAINT uq_organization_departments_name UNIQUE (name)
 );
 
-CREATE INDEX idx_organization_invitations_org_id ON organization_invitations (organization_id);
-CREATE INDEX idx_organization_invitations_email ON organization_invitations (email);
-CREATE INDEX idx_organization_invitations_status ON organization_invitations (status);
+CREATE TABLE organization_jobs (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    CONSTRAINT uq_organization_jobs_name UNIQUE (name)
+);
+
+CREATE TABLE organization_statuses (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    CONSTRAINT uq_organization_statuses_name UNIQUE (name)
+);
+
+CREATE TABLE organization_member_statuses (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    CONSTRAINT uq_organization_member_statuses_name UNIQUE (name)
+);

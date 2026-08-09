@@ -1,6 +1,6 @@
 package kahoot.clabs.quiz.infrastructure.persistence.postgres.entity;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -9,84 +9,45 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/**
- * JPA persistence model for categories. Own lifecycle within quiz-service.
- */
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity
 @Table(
         name = "categories",
         uniqueConstraints = @UniqueConstraint(
-                name = "uq_categories_slug",
-                columnNames = {"slug"}))
+                name = "uq_categories_organization_name",
+                columnNames = {"organization_id", "name"}))
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CategoryJpaEntity {
 
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    /** External reference to organization-service. No FK. */
+    @Column(name = "organization_id", nullable = false, updatable = false)
+    private UUID organizationId;
+
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", length = 255)
     private String description;
 
-    @Column(name = "slug", nullable = false, length = 120)
-    private String slug;
+    @Column(name = "color", length = 20)
+    private String color;
+
+    @Column(name = "icon", length = 50)
+    private String icon;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    protected CategoryJpaEntity() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    private LocalDateTime updatedAt;
 }
