@@ -1,0 +1,44 @@
+package kahoot.clabs.application.usecase;
+
+import java.util.UUID;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import kahoot.clabs.application.command.CreateGameSessionCommand;
+import kahoot.clabs.application.dto.GameSessionResponse;
+import kahoot.clabs.application.port.out.integration.OrganizationMembershipPort;
+import kahoot.clabs.application.port.out.integration.QuizSnapshotPort;
+import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
+import kahoot.clabs.domain.aggregate.GameSession;
+import kahoot.clabs.domain.repository.GameSessionRepository;
+import kahoot.clabs.domain.shared.DomainException;
+
+@ApplicationScoped
+public class CreateGameSessionUseCase {
+
+    @Inject
+    GameSessionRepository gameSessionRepository;
+
+    @Inject
+    OrganizationMembershipPort organizationMembershipPort;
+
+    @Inject
+    QuizSnapshotPort quizSnapshotPort;
+
+    @Transactional
+    public GameSessionResponse execute(UUID organizationId, CreateGameSessionCommand command) {
+        GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
+        GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
+
+        PublishedQuizSnapshot snapshot = quizSnapshotPort
+                .findPublishedByOrganizationAndId(organizationId, command.quizId())
+                .orElseThrow(() -> new DomainException(
+                        "Published quiz not found for organization: " + command.quizId()));
+
+        GameSession session = GameSession.create(organizationId, snapshot.quizId(), command.hostUserId());
+        GameSessionSupport.freezeFromSnapshot(session, snapshot);
+        return GameSessionResponse.from(gameSessionRepository.save(session));
+    }
+}

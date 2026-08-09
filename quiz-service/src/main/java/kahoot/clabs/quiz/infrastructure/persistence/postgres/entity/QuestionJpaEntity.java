@@ -33,6 +33,10 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuestionJpaEntity {
 
+    public static QuestionJpaEntity create() {
+        return new QuestionJpaEntity();
+    }
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;

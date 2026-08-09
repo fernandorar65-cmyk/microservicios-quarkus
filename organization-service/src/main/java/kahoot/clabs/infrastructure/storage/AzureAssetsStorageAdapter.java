@@ -10,16 +10,10 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
-import io.quarkus.arc.lookup.LookupIfProperty;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import kahoot.clabs.domain.shared.DomainException;
 import kahoot.clabs.application.port.out.AssetsStoragePort;
 
-@ApplicationScoped
-@LookupIfProperty(name = "app.storage", stringValue = "azure")
 public class AzureAssetsStorageAdapter implements AssetsStoragePort {
 
     private final BlobServiceClient blobServiceClient;
@@ -27,12 +21,11 @@ public class AzureAssetsStorageAdapter implements AssetsStoragePort {
     private final Optional<String> accountName;
     private final Optional<String> publicBaseUrl;
 
-    @Inject
     public AzureAssetsStorageAdapter(
-            @ConfigProperty(name = "storage.azure.connection-string") Optional<String> connectionString,
-            @ConfigProperty(name = "storage.azure.container") Optional<String> container,
-            @ConfigProperty(name = "storage.azure.account-name") Optional<String> accountName,
-            @ConfigProperty(name = "storage.azure.public-base-url") Optional<String> publicBaseUrl) {
+            Optional<String> connectionString,
+            Optional<String> container,
+            Optional<String> accountName,
+            Optional<String> publicBaseUrl) {
         String conn = connectionString.filter(value -> !value.isBlank()).orElse(null);
         if (conn == null) {
             throw new IllegalStateException(

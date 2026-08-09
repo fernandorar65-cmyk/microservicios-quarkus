@@ -3,10 +3,6 @@ package kahoot.clabs.quiz.infrastructure.storage;
 import java.util.Map;
 import java.util.Optional;
 
-import io.quarkus.arc.lookup.LookupIfProperty;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -16,8 +12,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import kahoot.clabs.quiz.domain.shared.DomainException;
 import kahoot.clabs.quiz.application.port.out.QuizAssetPort;
 
-@ApplicationScoped
-@LookupIfProperty(name = "app.storage", stringValue = "aws", lookupIfMissing = true)
 public class AwsQuizAssetAdapter implements QuizAssetPort {
 
     private final S3Client s3Client;
@@ -25,11 +19,10 @@ public class AwsQuizAssetAdapter implements QuizAssetPort {
     private final String region;
     private final Optional<String> publicBaseUrl;
 
-    @Inject
     public AwsQuizAssetAdapter(
-            @ConfigProperty(name = "storage.s3.bucket") Optional<String> bucket,
-            @ConfigProperty(name = "storage.s3.region", defaultValue = "us-east-2") String region,
-            @ConfigProperty(name = "storage.s3.public-base-url") Optional<String> publicBaseUrl) {
+            Optional<String> bucket,
+            String region,
+            Optional<String> publicBaseUrl) {
         this.bucket = bucket;
         this.region = region;
         this.publicBaseUrl = publicBaseUrl;
@@ -54,6 +47,10 @@ public class AwsQuizAssetAdapter implements QuizAssetPort {
                         .build(),
                 RequestBody.fromBytes(content));
         return publicUrl(objectKey, bucketName);
+    }
+
+    public void close() {
+        s3Client.close();
     }
 
     private String publicUrl(String objectKey, String bucketName) {

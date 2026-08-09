@@ -25,6 +25,16 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CategoryJpaEntity {
 
+    public static CategoryJpaEntity create() {
+        return new CategoryJpaEntity();
+    }
+
+    public static CategoryJpaEntity reference(UUID id) {
+        CategoryJpaEntity entity = new CategoryJpaEntity();
+        entity.setId(id);
+        return entity;
+    }
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;

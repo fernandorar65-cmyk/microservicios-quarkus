@@ -28,6 +28,10 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AnswerOptionJpaEntity {
 
+    public static AnswerOptionJpaEntity create() {
+        return new AnswerOptionJpaEntity();
+    }
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;

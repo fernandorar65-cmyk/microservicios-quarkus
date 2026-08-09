@@ -1,5 +1,7 @@
 package kahoot.clabs.quiz.infrastructure.persistence.postgres.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -34,5 +36,9 @@ public class QuizCategoryJpaEntity {
     public QuizCategoryJpaEntity(QuizJpaEntity quiz, CategoryJpaEntity category) {
         this.quiz = quiz;
         this.category = category;
+    }
+
+    public static QuizCategoryJpaEntity link(QuizJpaEntity quiz, UUID categoryId) {
+        return new QuizCategoryJpaEntity(quiz, CategoryJpaEntity.reference(categoryId));
     }
 }
