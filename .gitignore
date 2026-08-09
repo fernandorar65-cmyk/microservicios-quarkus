@@ -1,0 +1,7 @@
+# Root ignores for the Kahoot CLABS microservices workspace
+.idea/
+.vscode/
+*.log
+.DS_Store
+.env
+**/target/

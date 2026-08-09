@@ -1,3 +1,4 @@
+package kahoot.clabs.infrastructure.persistence.postgres.entity;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

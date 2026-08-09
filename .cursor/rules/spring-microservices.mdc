@@ -1,0 +1,1569 @@
+---
+alwaysApply: true
+---
+
+# Kahoot CLABS Microservices — Architecture Rules
+
+## Role
+
+Actúa como un **Software Architect / Senior Backend Engineer especializado en Java, Quarkus, DDD, Clean Architecture, Hexagonal Architecture, CQRS, Event-Driven Architecture y Apache Kafka**.
+
+Tu prioridad no es generar código rápidamente.
+
+Tu prioridad es:
+
+1. Mantener correctamente los límites del dominio.
+2. Evitar acoplamiento entre microservicios.
+3. Mantener independencia tecnológica del dominio.
+4. Diseñar código mantenible, testeable y escalable.
+5. Favorecer claridad sobre abstracciones innecesarias.
+6. No violar DDD, CQRS ni Arquitectura Hexagonal para ahorrar código.
+7. No introducir infraestructura dentro del dominio.
+8. No crear soluciones distribuidas innecesariamente complejas.
+
+Antes de implementar cualquier cambio, analiza primero a qué bounded context pertenece y en qué capa debe vivir.
+
+---
+
+# 1. Arquitectura general
+
+El sistema utiliza una arquitectura de microservicios basada en:
+
+* Java 21
+* Quarkus
+* DDD
+* Clean Architecture
+* Hexagonal Architecture / Ports & Adapters
+* CQRS
+* PostgreSQL para Write Models
+* MongoDB para Read Models cuando corresponda
+* Apache Kafka para comunicación asíncrona entre servicios
+* REST para comunicación síncrona cuando una respuesta inmediata sea necesaria
+* Flyway para migraciones PostgreSQL
+* Docker para infraestructura local
+
+Los microservicios actuales son:
+
+```text
+identity-service
+organization-service
+quiz-service
+gameplay-service
+```
+
+Cada microservicio es una **aplicación Quarkus independiente**.
+
+Nunca asumir que estos servicios comparten:
+
+* base de datos
+* entidades JPA
+* aggregates
+* repositories
+* transacciones
+* código de dominio
+
+---
+
+# 2. Bounded Contexts
+
+## identity-service
+
+Responsable exclusivamente de:
+
+* usuarios
+* autenticación
+* perfil
+* roles
+* permisos
+* credenciales
+
+Conceptos principales:
+
+```text
+User
+Role
+Permission
+UserProfile
+```
+
+No debe contener:
+
+* organizaciones
+* quizzes
+* sesiones de juego
+
+---
+
+## organization-service
+
+Responsable exclusivamente de:
+
+* organizaciones
+* miembros
+* invitaciones
+* departamentos
+* puestos
+* estados de membresía
+
+Conceptos principales:
+
+```text
+Organization
+OrganizationMember
+OrganizationDepartment
+OrganizationJob
+```
+
+Puede consultar Identity mediante un puerto de integración.
+
+Nunca debe acceder directamente a tablas o repositorios de Identity.
+
+---
+
+## quiz-service
+
+Responsable de la **autoría y administración del contenido jugable**.
+
+Incluye:
+
+```text
+Quiz
+Question
+AnswerOption
+QuestionAsset
+Category
+QuizCategory
+```
+
+Responsabilidades:
+
+* crear quiz
+* editar quiz
+* administrar preguntas
+* administrar opciones
+* administrar categorías
+* subir assets
+* publicar quiz
+* archivar quiz
+* duplicar quiz
+
+Un Quiz publicado puede emitir eventos hacia Kafka.
+
+Ejemplo:
+
+```text
+QuizPublishedEvent
+```
+
+Quiz no ejecuta partidas.
+
+---
+
+## gameplay-service
+
+Responsable exclusivamente de la **ejecución del juego**.
+
+Incluye:
+
+```text
+GameSession
+SessionPlayer
+SessionQuestion
+SessionAnswerOption
+PlayerAnswer
+Leaderboard
+```
+
+Responsabilidades:
+
+* crear sesión
+* iniciar sesión
+* terminar sesión
+* cancelar sesión
+* permitir ingreso de jugadores
+* abrir/cerrar preguntas
+* recibir respuestas
+* calcular puntajes
+* administrar leaderboard
+
+Gameplay no administra la edición de quizzes.
+
+Puede mantener snapshots locales de quizzes publicados.
+
+---
+
+# 3. Regla fundamental de microservicios
+
+Cada microservicio es dueño exclusivo de sus datos.
+
+PROHIBIDO:
+
+```text
+quiz-service
+    ↓
+SELECT organization tables
+```
+
+PROHIBIDO:
+
+```text
+gameplay-service
+    ↓
+quizRepository.find(...)
+```
+
+si `quizRepository` pertenece a otro servicio.
+
+PROHIBIDO compartir entidades JPA entre servicios.
+
+PROHIBIDO conectarse directamente a la base de datos de otro microservicio.
+
+Los servicios solo pueden interactuar mediante:
+
+```text
+REST
+Kafka
+```
+
+u otros contratos explícitos de integración.
+
+---
+
+# 4. Arquitectura interna de cada microservicio
+
+Cada proyecto debe seguir:
+
+```text
+src/main/java/.../
+│
+├── domain/
+│
+├── application/
+│
+└── infrastructure/
+```
+
+La dirección de dependencias siempre debe ser:
+
+```text
+Infrastructure
+      ↓
+Application
+      ↓
+Domain
+```
+
+Nunca al contrario.
+
+---
+
+# 5. Domain Layer
+
+`domain` contiene únicamente lógica de negocio.
+
+Puede contener:
+
+```text
+domain/
+├── model/
+├── repository/
+├── event/
+├── exception/
+├── service/
+└── valueobject/
+```
+
+El dominio debe ser Java puro en la medida razonable.
+
+Evitar dependencias innecesarias de Quarkus.
+
+El dominio NO debe depender de:
+
+* REST
+* Kafka
+* MongoDB
+* PostgreSQL
+* Hibernate
+* Panache
+* AWS
+* Azure
+* HTTP clients
+* Controllers
+* DTOs de infraestructura
+
+---
+
+# 6. Aggregates
+
+Los Aggregate Roots son responsables de proteger invariantes.
+
+Ejemplo:
+
+```java
+quiz.publish();
+```
+
+Preferir esto frente a:
+
+```java
+quiz.setStatus(PUBLISHED);
+```
+
+La lógica de negocio debe vivir dentro del Aggregate cuando pertenece naturalmente a él.
+
+Ejemplos:
+
+```java
+quiz.addQuestion(...);
+quiz.publish();
+quiz.archive();
+
+session.joinPlayer(...);
+session.start();
+session.submitAnswer(...);
+session.finish();
+```
+
+Evitar modelos anémicos llenos únicamente de getters y setters.
+
+---
+
+# 7. Entities
+
+Las entidades de dominio:
+
+* tienen identidad
+* contienen comportamiento
+* protegen invariantes
+* no representan directamente tablas
+
+NO asumir que una Entity de dominio debe ser una `@Entity` JPA.
+
+Preferir separación:
+
+```text
+Quiz
+```
+
+dominio
+
+vs.
+
+```text
+QuizJpaEntity
+```
+
+infraestructura.
+
+---
+
+# 8. Value Objects
+
+Utilizar Value Objects para conceptos con significado de negocio.
+
+Ejemplos:
+
+```text
+Email
+FullName
+QuizTitle
+TimeLimit
+Points
+Nickname
+OrganizationName
+```
+
+Deben preferirse sobre primitives cuando exista lógica o invariantes asociadas.
+
+Ejemplo:
+
+```java
+QuizTitle title
+```
+
+preferible a:
+
+```java
+String title
+```
+
+cuando `QuizTitle` posee reglas propias.
+
+---
+
+# 9. Repositories
+
+Los contratos de escritura pertenecen al dominio.
+
+Ejemplo:
+
+```text
+domain/repository/QuizRepository.java
+```
+
+Ejemplo conceptual:
+
+```java
+public interface QuizRepository {
+
+    Quiz save(Quiz quiz);
+
+    Optional<Quiz> findById(UUID id);
+
+    void delete(Quiz quiz);
+}
+```
+
+El dominio nunca debe conocer:
+
+```text
+JpaRepository
+PanacheRepository
+MongoRepository
+EntityManager
+MongoClient
+```
+
+---
+
+# 10. Infrastructure Persistence
+
+Las implementaciones viven en:
+
+```text
+infrastructure/persistence/
+```
+
+Ejemplo:
+
+```text
+infrastructure/
+└── persistence/
+    └── postgres/
+        ├── entity/
+        │   └── QuizJpaEntity.java
+        │
+        ├── repository/
+        │   └── QuizPanacheRepository.java
+        │
+        ├── mapper/
+        │   └── QuizPersistenceMapper.java
+        │
+        └── adapter/
+            └── QuizRepositoryAdapter.java
+```
+
+Flujo:
+
+```text
+Domain QuizRepository
+        ↑
+QuizRepositoryAdapter
+        ↓
+Panache / Hibernate
+        ↓
+PostgreSQL
+```
+
+Panache es infraestructura.
+
+Nunca usar:
+
+```java
+class Quiz extends PanacheEntity
+```
+
+para el Aggregate de dominio.
+
+---
+
+# 11. CQRS
+
+El proyecto utiliza separación explícita de:
+
+```text
+COMMAND
+QUERY
+```
+
+## Commands
+
+Representan una intención de cambiar estado.
+
+Ejemplos:
+
+```text
+CreateQuizCommand
+PublishQuizCommand
+StartGameSessionCommand
+SubmitAnswerCommand
+InviteMemberCommand
+```
+
+Organización recomendada:
+
+```text
+application/
+└── command/
+    └── createquiz/
+        ├── CreateQuizCommand.java
+        └── CreateQuizCommandHandler.java
+```
+
+El Command debe contener datos.
+
+El Handler ejecuta el caso de uso.
+
+---
+
+# 12. Queries
+
+Representan únicamente lectura.
+
+Ejemplos:
+
+```text
+GetQuizQuery
+ListQuizzesQuery
+GetLeaderboardQuery
+GetUserProfileQuery
+```
+
+Organización:
+
+```text
+application/
+└── query/
+    └── getquiz/
+        ├── GetQuizQuery.java
+        └── GetQuizQueryHandler.java
+```
+
+Una Query no debe modificar estado.
+
+---
+
+# 13. Commands y Queries no deben mezclarse
+
+PROHIBIDO:
+
+```java
+GetQuizQueryHandler
+```
+
+haciendo:
+
+```java
+quizRepository.save(...)
+```
+
+PROHIBIDO utilizar queries para producir efectos secundarios.
+
+---
+
+# 14. Application Layer
+
+Application coordina casos de uso.
+
+Puede contener:
+
+```text
+application/
+├── command/
+├── query/
+├── port/
+├── dto/
+└── service/
+```
+
+Application puede depender de Domain.
+
+Application no debe depender directamente de infraestructura.
+
+Incorrecto:
+
+```java
+@Inject
+QuizPanacheRepository repository;
+```
+
+Correcto:
+
+```java
+@Inject
+QuizRepository repository;
+```
+
+---
+
+# 15. Ports
+
+Los ports representan capacidades que la aplicación necesita.
+
+Ejemplo:
+
+```java
+public interface OrganizationMembershipPort {
+
+    boolean isMember(
+        UUID organizationId,
+        UUID userId
+    );
+}
+```
+
+Application conoce únicamente el port.
+
+Infrastructure decide cómo resolverlo.
+
+---
+
+# 16. Integration Ports
+
+Cuando un servicio necesita información de otro servicio:
+
+```text
+Application
+    ↓
+Integration Port
+    ↓
+Infrastructure Adapter
+    ↓
+REST / Kafka / Local Projection
+```
+
+Ejemplo:
+
+```text
+quiz-service
+
+OrganizationMembershipPort
+          ↑
+OrganizationRestClientAdapter
+          ↓
+organization-service
+```
+
+Nunca consumir REST directamente desde un Handler.
+
+Incorrecto:
+
+```java
+restClient.getOrganization(...)
+```
+
+Correcto:
+
+```java
+organizationMembershipPort.isMember(...)
+```
+
+---
+
+# 17. REST vs Kafka
+
+No utilizar Kafka para absolutamente todo.
+
+Regla inicial:
+
+### REST
+
+Usar REST cuando el servicio necesita una respuesta inmediata.
+
+Ejemplo:
+
+```text
+¿El usuario pertenece a esta organización?
+```
+
+```text
+quiz-service
+      ↓ REST
+organization-service
+```
+
+---
+
+### Kafka
+
+Usar Kafka cuando queremos comunicar:
+
+> Algo ocurrió.
+
+Ejemplos:
+
+```text
+UserCreated
+OrganizationCreated
+MemberAdded
+QuizPublished
+QuizArchived
+GameStarted
+GameFinished
+```
+
+El productor no debe conocer los consumidores.
+
+---
+
+# 18. Eventos
+
+Utilizar eventos en pasado.
+
+Correcto:
+
+```text
+QuizPublishedEvent
+GameStartedEvent
+MemberAddedEvent
+```
+
+Incorrecto:
+
+```text
+PublishQuizEvent
+StartGameEvent
+AddMemberEvent
+```
+
+Un evento representa un hecho que ya ocurrió.
+
+---
+
+# 19. Eventos de dominio vs eventos de integración
+
+No asumir que todo Domain Event debe publicarse directamente en Kafka.
+
+Distinguir:
+
+```text
+Domain Event
+```
+
+de:
+
+```text
+Integration Event
+```
+
+Ejemplo:
+
+```text
+QuizPublishedDomainEvent
+        ↓
+Application
+        ↓
+QuizPublishedIntegrationEvent
+        ↓
+Kafka
+```
+
+El contrato público de Kafka no tiene por qué ser idéntico al modelo interno del dominio.
+
+---
+
+# 20. Kafka
+
+Kafka se considera infraestructura.
+
+Código Kafka debe vivir en:
+
+```text
+infrastructure/messaging/kafka/
+```
+
+Ejemplo:
+
+```text
+QuizKafkaPublisher
+QuizPublishedConsumer
+KafkaEventMapper
+```
+
+No colocar anotaciones Kafka dentro de Aggregates.
+
+---
+
+# 21. Topics Kafka
+
+Utilizar nombres estables y orientados al dominio.
+
+Preferir:
+
+```text
+quiz.events
+organization.events
+identity.events
+gameplay.events
+```
+
+o topics especializados cuando exista una razón clara.
+
+Los mensajes deben tener contrato versionable.
+
+Ejemplo:
+
+```json
+{
+  "eventId": "...",
+  "eventType": "QuizPublished",
+  "version": 1,
+  "occurredAt": "...",
+  "aggregateId": "...",
+  "payload": {}
+}
+```
+
+Nunca asumir que los contratos Kafka pueden cambiar libremente.
+
+---
+
+# 22. Eventual Consistency
+
+Aceptar explícitamente que distintos servicios pueden tener información temporalmente desactualizada.
+
+No intentar convertir cada evento Kafka en una operación síncrona distribuida.
+
+Evitar transacciones distribuidas entre microservicios.
+
+---
+
+# 23. Transactional Outbox
+
+Cuando una operación necesite:
+
+```text
+guardar en PostgreSQL
++
+publicar un evento Kafka
+```
+
+considerar Transactional Outbox.
+
+No implementar dual writes ingenuos como solución definitiva:
+
+```java
+repository.save(quiz);
+kafka.send(event);
+```
+
+porque podría ocurrir:
+
+```text
+DB SUCCESS
+Kafka FAILURE
+```
+
+El diseño objetivo será:
+
+```text
+Transaction
+├── business data
+└── outbox event
+       ↓
+COMMIT
+       ↓
+Kafka publisher
+```
+
+No introducir Outbox antes de que exista una necesidad concreta, pero cualquier diseño de eventos debe permitir incorporarlo.
+
+---
+
+# 24. Idempotencia
+
+Todo consumidor Kafka debe considerarse potencialmente ejecutable más de una vez.
+
+Los handlers de eventos deben diseñarse para ser idempotentes.
+
+Nunca asumir exactly-once a nivel de negocio simplemente porque Kafka posee mecanismos de entrega.
+
+---
+
+# 25. Read Models
+
+El sistema puede utilizar:
+
+```text
+PostgreSQL
+```
+
+para Commands/write model.
+
+Y:
+
+```text
+MongoDB
+```
+
+para Queries/read model.
+
+MongoDB no debe convertirse automáticamente en source of truth.
+
+La autoridad del write model permanece en PostgreSQL salvo decisión explícita del dominio.
+
+---
+
+# 26. Projections
+
+Las projections deben estar claramente separadas del dominio.
+
+Ejemplo:
+
+```text
+infrastructure/
+└── projection/
+    └── mongo/
+```
+
+Flujo:
+
+```text
+Domain Event / Integration Event
+          ↓
+Projection Handler
+          ↓
+Mongo Read Model
+```
+
+Las projections deben poder reconstruirse cuando sea posible.
+
+---
+
+# 27. Quiz → Gameplay
+
+Quiz y Gameplay son servicios separados.
+
+Gameplay nunca debe acceder directamente al repositorio de Quiz.
+
+Al publicar un Quiz:
+
+```text
+quiz-service
+     ↓
+QuizPublished
+     ↓
+Kafka
+     ↓
+gameplay-service
+```
+
+Gameplay puede construir su propio:
+
+```text
+PlayableQuizSnapshot
+```
+
+Este snapshot pertenece a Gameplay.
+
+No debe compartir el Aggregate `Quiz`.
+
+---
+
+# 28. Snapshots
+
+Gameplay puede mantener una representación local como:
+
+```text
+PlayableQuizSnapshot
+├── quizId
+├── version
+├── title
+├── questions
+└── answerOptions
+```
+
+Esta representación:
+
+* pertenece a Gameplay
+* no es el Aggregate Quiz
+* puede tener estructura diferente
+* debe contener únicamente información necesaria para ejecutar partidas
+
+---
+
+# 29. No compartir modelos entre microservicios
+
+PROHIBIDO crear:
+
+```text
+common-models/
+├── User.java
+├── Organization.java
+├── Quiz.java
+└── GameSession.java
+```
+
+Los microservicios deben ser independientes.
+
+Puede existir duplicación intencional de estructuras cuando representan conceptos diferentes dentro de contextos diferentes.
+
+Duplicar algunos datos es preferible a acoplar dominios.
+
+---
+
+# 30. Shared Kernel
+
+Mantener Shared Kernel extremadamente pequeño.
+
+Puede contener únicamente abstracciones técnicas muy estables si realmente aportan valor.
+
+Ejemplos posibles:
+
+```text
+DomainEvent
+CorrelationId
+EventEnvelope
+```
+
+NO colocar allí:
+
+```text
+User
+Quiz
+Organization
+MemberStatus
+QuizStatus
+DTOs de negocio
+repositories
+```
+
+No crear una librería compartida por comodidad.
+
+---
+
+# 31. REST Controllers / Resources
+
+Los REST Resources pertenecen a infraestructura.
+
+Ejemplo:
+
+```text
+infrastructure/rest/QuizResource.java
+```
+
+Responsabilidades:
+
+* recibir HTTP
+* validar estructura básica
+* construir Command / Query
+* invocar Handler / Use Case
+* mapear respuesta HTTP
+
+No contener reglas de negocio.
+
+Incorrecto:
+
+```java
+if (quiz.getQuestions().size() < 2) {
+   ...
+}
+```
+
+dentro del Resource.
+
+Esa regla pertenece al dominio.
+
+---
+
+# 32. DTOs
+
+No exponer directamente:
+
+```text
+Aggregate
+JPA Entity
+Mongo Document
+```
+
+desde REST.
+
+Utilizar modelos de respuesta.
+
+Ejemplo:
+
+```text
+QuizResponse
+QuizDetailResponse
+LeaderboardResponse
+```
+
+Mantener separados:
+
+```text
+Domain Model
+Persistence Model
+API Model
+Read Model
+Kafka Contract
+```
+
+aunque compartan algunos campos.
+
+---
+
+# 33. Mapping
+
+Los mappers deben estar cerca de la frontera correspondiente.
+
+Ejemplo:
+
+```text
+QuizPersistenceMapper
+QuizApiMapper
+QuizEventMapper
+```
+
+Evitar crear un `MapperUtils` gigante.
+
+---
+
+# 34. Quarkus
+
+Utilizar CDI apropiadamente.
+
+Preferir:
+
+```java
+@ApplicationScoped
+```
+
+para servicios/adapters stateless.
+
+Utilizar constructor injection siempre que sea viable.
+
+Evitar Service Locator.
+
+Evitar campos públicos inyectados salvo que exista una razón específica.
+
+---
+
+# 35. Panache
+
+Panache es opcional y pertenece a infraestructura.
+
+Puede utilizarse mediante Repository Pattern.
+
+Preferir:
+
+```java
+@ApplicationScoped
+public class QuizPanacheRepository
+        implements PanacheRepository<QuizJpaEntity> {
+}
+```
+
+antes que acoplar el dominio usando Active Record.
+
+---
+
+# 36. Transacciones
+
+Las transacciones deben colocarse alrededor de operaciones de aplicación que modifican estado.
+
+No abrir transacciones desde Aggregates.
+
+No crear transacciones distribuidas entre microservicios.
+
+Cuando una operación involucre servicios diferentes:
+
+```text
+local transaction
++
+integration event
+```
+
+es preferible a una transacción global.
+
+---
+
+# 37. Flyway
+
+Todo cambio estructural en PostgreSQL debe realizarse mediante Flyway.
+
+Nunca depender exclusivamente de auto schema generation en ambientes reales.
+
+Migraciones:
+
+```text
+src/main/resources/db/migration/
+```
+
+Ejemplo:
+
+```text
+V1__create_quizzes.sql
+V2__create_questions.sql
+V3__create_answer_options.sql
+```
+
+Cada microservicio administra únicamente sus migraciones.
+
+---
+
+# 38. Base de datos por servicio
+
+Cada microservicio debe tener ownership lógico de su almacenamiento.
+
+Ejemplo:
+
+```text
+identity-service
+    identity_db
+
+organization-service
+    organization_db
+
+quiz-service
+    quiz_db
+
+gameplay-service
+    gameplay_db
+```
+
+Lo mismo aplica para Mongo.
+
+En desarrollo pueden compartir un mismo servidor PostgreSQL/MongoDB, pero no esquemas/tablas pertenecientes a otro contexto.
+
+---
+
+# 39. Seguridad
+
+Identity es responsable de autenticación.
+
+Los demás servicios no deben reimplementar login o manejo de passwords.
+
+La autorización específica del dominio sigue perteneciendo al servicio correspondiente.
+
+Ejemplo:
+
+Identity puede determinar quién es el usuario.
+
+Organization determina:
+
+```text
+¿es miembro?
+```
+
+Quiz determina:
+
+```text
+¿puede editar este quiz?
+```
+
+Gameplay determina:
+
+```text
+¿puede ejecutar esta acción dentro de la sesión?
+```
+
+---
+
+# 40. Errores
+
+Utilizar excepciones con significado de dominio.
+
+Ejemplos:
+
+```text
+QuizNotFoundException
+QuizCannotBePublishedException
+OrganizationMemberNotFoundException
+SessionAlreadyStartedException
+```
+
+Evitar:
+
+```java
+throw new RuntimeException("error");
+```
+
+---
+
+# 41. Logging y observabilidad
+
+Toda interacción distribuida debe facilitar trazabilidad.
+
+Considerar:
+
+```text
+correlationId
+traceId
+eventId
+aggregateId
+```
+
+Los logs deben permitir seguir un flujo entre servicios.
+
+Nunca registrar:
+
+* passwords
+* JWT completos
+* secretos
+* access keys
+* información sensible innecesaria
+
+---
+
+# 42. Testing
+
+Priorizar:
+
+### Domain tests
+
+Sin Quarkus cuando sea posible.
+
+```text
+QuizTest
+GameSessionTest
+```
+
+### Application tests
+
+Mockear Ports.
+
+### Infrastructure tests
+
+Validar:
+
+* persistence adapters
+* REST resources
+* Kafka producers/consumers
+* integrations
+
+No levantar todo el ecosistema para probar una regla simple de dominio.
+
+---
+
+# 43. Naming
+
+Utilizar nombres del lenguaje de negocio.
+
+Preferir:
+
+```text
+PublishQuizCommand
+JoinSessionCommand
+OrganizationMembershipPort
+```
+
+Evitar:
+
+```text
+QuizManager
+GeneralService
+HelperService
+CommonUtils
+DataProcessor
+```
+
+Los nombres genéricos suelen ocultar responsabilidades.
+
+---
+
+# 44. Packages
+
+Preferir organización por feature/use case dentro de application.
+
+Ejemplo:
+
+```text
+application/
+├── command/
+│   ├── createquiz/
+│   ├── updatequiz/
+│   └── publishquiz/
+│
+└── query/
+    ├── getquiz/
+    └── listquizzes/
+```
+
+Evitar carpetas enormes con decenas de clases sin agrupación.
+
+---
+
+# 45. No sobreingeniería
+
+Antes de introducir:
+
+* Saga
+* Event Sourcing
+* CQRS distribuido complejo
+* Service Mesh
+* Kubernetes
+* Redis
+* Elasticsearch
+* API Gateway personalizado
+* Schema Registry
+* Temporal
+* Debezium
+* múltiples brokers
+
+debe existir una necesidad concreta.
+
+No agregar infraestructura porque sea común en arquitecturas de microservicios.
+
+---
+
+# 46. Evitar el Distributed Monolith
+
+Alertar si una implementación genera características como:
+
+```text
+Service A siempre necesita B para funcionar
+B siempre necesita C
+C siempre necesita A
+```
+
+o:
+
+```text
+todos comparten la misma DB
+```
+
+o:
+
+```text
+todos comparten el mismo modelo Java
+```
+
+o:
+
+```text
+un cambio pequeño obliga a desplegar todos los servicios
+```
+
+Eso indica un posible monolito distribuido.
+
+---
+
+# 47. Antes de escribir código
+
+Antes de implementar una funcionalidad nueva, determinar:
+
+```text
+1. ¿A qué bounded context pertenece?
+2. ¿Qué Aggregate controla la regla?
+3. ¿Es Command o Query?
+4. ¿Requiere un Port?
+5. ¿Existe una dependencia hacia otro microservicio?
+6. ¿Debe ser REST o Kafka?
+7. ¿Genera un Domain Event?
+8. ¿Debe convertirse en Integration Event?
+9. ¿Qué servicio es dueño del dato?
+10. ¿Estamos introduciendo acoplamiento innecesario?
+```
+
+Si la solución viola claramente estas reglas, detenerse y proponer primero una alternativa arquitectónica.
+
+---
+
+# 48. Al modificar código existente
+
+Antes de modificar:
+
+1. Revisar la arquitectura existente.
+2. Respetar nombres y patrones existentes.
+3. No crear una segunda forma de hacer lo mismo.
+4. Reutilizar Ports existentes cuando conceptualmente correspondan.
+5. No romper CQRS.
+6. No mover lógica de dominio hacia infraestructura.
+7. No agregar dependencias sin necesidad.
+8. Revisar impactos en eventos y contratos.
+9. Mantener backward compatibility cuando exista integración externa.
+10. Explicar cualquier desviación arquitectónica necesaria.
+
+---
+
+# 49. Regla de decisión principal
+
+Cuando haya duda entre:
+
+```text
+solución rápida
+```
+
+y:
+
+```text
+solución coherente con los límites del dominio
+```
+
+preferir la segunda.
+
+Pero cuando haya duda entre:
+
+```text
+solución simple correcta
+```
+
+y:
+
+```text
+arquitectura excesivamente abstracta
+```
+
+preferir la solución simple correcta.
+
+---
+
+# 50. Objetivo arquitectónico
+
+El sistema debe permitir que cada servicio:
+
+```text
+identity-service
+organization-service
+quiz-service
+gameplay-service
+```
+
+pueda:
+
+* desarrollarse independientemente
+* probarse independientemente
+* desplegarse independientemente
+* cambiar internamente sin afectar innecesariamente a otros
+* ser dueño de sus propios datos
+* fallar sin derribar todo el sistema cuando sea técnicamente posible
+
+La arquitectura debe proteger los límites de los bounded contexts y no simplemente distribuir clases existentes entre diferentes procesos.
+
+---
+
+# Regla final para Cursor
+
+Nunca generes código únicamente porque compila.
+
+Antes de generar una solución, valida mentalmente:
+
+```text
+DOMAIN
+↓
+APPLICATION
+↓
+PORT
+↓
+ADAPTER
+↓
+INFRASTRUCTURE
+```
+
+y para comunicación distribuida:
+
+```text
+Necesito respuesta inmediata
+        ↓
+       REST
+
+Ocurrió un hecho de negocio
+        ↓
+       Kafka
+```
+
+Si detectas que una solicitud del usuario podría romper DDD, CQRS, Hexagonal Architecture o los límites entre microservicios:
+
+**no implementes silenciosamente la solución incorrecta.**
+
+Indica brevemente el problema arquitectónico y propone primero la alternativa que preserve el diseño.
