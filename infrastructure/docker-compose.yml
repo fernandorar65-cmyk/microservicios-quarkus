@@ -8,6 +8,10 @@
 # Postgres instances that may already use 5432.
 # JDBC URLs in each service default to localhost:5433.
 #
+# MongoDB is published on host port 27018 to avoid conflicts with a local
+# mongod that may already use 27017.
+# Connection strings in each service default to localhost:27018.
+#
 # Databases (tables owned by each service Flyway):
 #   identity_db, organization_db, quiz_db, gameplay_db
 #
@@ -37,7 +41,7 @@ services:
     image: mongo:7
     container_name: kahoot-mongodb
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongodb_data:/data/db
     healthcheck:
