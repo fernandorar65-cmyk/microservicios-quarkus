@@ -1,5 +1,6 @@
 package kahoot.clabs.quiz.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -42,6 +43,7 @@ import kahoot.clabs.quiz.application.usecase.ManageQuizQuestionsUseCase;
 import kahoot.clabs.quiz.application.usecase.UpdateQuizUseCase;
 import kahoot.clabs.quiz.application.usecase.UploadQuizImageUseCase;
 
+@Tag(name = "Quizzes")
 @Path("/api/v1/organizations/{organizationId}/quizzes")
 @Produces(MediaType.APPLICATION_JSON)
 public class QuizResource {

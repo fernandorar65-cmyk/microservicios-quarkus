@@ -1,5 +1,6 @@
 package kahoot.clabs.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ import kahoot.clabs.application.usecase.GetOrganizationUseCase;
 import kahoot.clabs.application.usecase.InviteMemberUseCase;
 import kahoot.clabs.application.usecase.UpdateOrganizationUseCase;
 
+@Tag(name = "Organizations")
 @Path("/api/v1/organizations")
 @Produces(MediaType.APPLICATION_JSON)
 public class OrganizationResource {

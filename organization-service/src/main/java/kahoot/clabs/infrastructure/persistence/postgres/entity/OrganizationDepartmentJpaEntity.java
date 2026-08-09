@@ -33,4 +33,8 @@ public class OrganizationDepartmentJpaEntity {
 
     @Column(name = "description", nullable = false, length = 100)
     private String description;
+
+    public static OrganizationDepartmentJpaEntity newInstance() {
+        return new OrganizationDepartmentJpaEntity();
+    }
 }

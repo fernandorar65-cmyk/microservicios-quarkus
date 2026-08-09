@@ -1,5 +1,6 @@
 package kahoot.clabs.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import kahoot.clabs.application.usecase.ManageSessionPlayersUseCase;
 import kahoot.clabs.application.usecase.ManageSessionQuestionsUseCase;
 import kahoot.clabs.application.usecase.SubmitAnswerUseCase;
 
+@Tag(name = "Sessions")
 @Path("/api/v1/organizations/{organizationId}/sessions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

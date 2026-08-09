@@ -1,5 +1,6 @@
 package kahoot.clabs.quiz.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ import kahoot.clabs.quiz.application.usecase.GetCategoryUseCase;
 import kahoot.clabs.quiz.application.usecase.ListCategoriesUseCase;
 import kahoot.clabs.quiz.application.usecase.UpdateCategoryUseCase;
 
+@Tag(name = "Categories")
 @Path("/api/v1/categories")
 @Produces(MediaType.APPLICATION_JSON)
 public class CategoryResource {

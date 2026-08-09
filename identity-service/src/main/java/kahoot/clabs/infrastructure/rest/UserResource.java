@@ -1,5 +1,6 @@
 package kahoot.clabs.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -32,6 +33,7 @@ import kahoot.clabs.application.usecase.GetUserRolesUseCase;
 import kahoot.clabs.application.usecase.UpdateProfileUseCase;
 import kahoot.clabs.infrastructure.web.ApiResponse;
 
+@Tag(name = "Users")
 @Path("/api/v1/users")
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {

@@ -33,4 +33,8 @@ public class OrganizationStatusJpaEntity {
 
     @Column(name = "description", nullable = false, length = 100)
     private String description;
+
+    public static OrganizationStatusJpaEntity newInstance() {
+        return new OrganizationStatusJpaEntity();
+    }
 }

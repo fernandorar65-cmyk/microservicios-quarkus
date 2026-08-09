@@ -1,5 +1,6 @@
 package kahoot.clabs.infrastructure.rest;
 
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -14,6 +15,7 @@ import kahoot.clabs.application.usecase.LoginUserUseCase;
 import kahoot.clabs.application.usecase.RegisterUserUseCase;
 import kahoot.clabs.infrastructure.web.ApiResponse;
 
+@Tag(name = "Auth")
 @Path("/api/v1/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
