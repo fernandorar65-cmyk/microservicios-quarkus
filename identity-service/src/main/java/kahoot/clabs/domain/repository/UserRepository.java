@@ -1,0 +1,17 @@
+package kahoot.clabs.domain.repository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import kahoot.clabs.domain.aggregate.User;
+
+public interface UserRepository {
+
+    User save(User user);
+
+    Optional<User> findById(UUID id);
+
+    Optional<User> findByEmail(String email);
+
+    void delete(User user);
+}

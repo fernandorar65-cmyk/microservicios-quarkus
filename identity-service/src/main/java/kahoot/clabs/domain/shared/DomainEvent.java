@@ -1,0 +1,23 @@
+package kahoot.clabs.domain.shared;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public abstract class DomainEvent {
+
+    private final UUID eventId;
+    private final LocalDateTime createdAt;
+
+    protected DomainEvent() {
+        this.eventId = UUID.randomUUID();
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public UUID getEventId() {
+        return eventId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+}
