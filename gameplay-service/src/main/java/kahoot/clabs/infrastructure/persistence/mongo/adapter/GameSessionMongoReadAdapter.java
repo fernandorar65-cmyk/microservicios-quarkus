@@ -8,8 +8,7 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import kahoot.clabs.application.port.out.read.GameSessionReadPort;
+import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.GameSessionReadMapper;
 import kahoot.clabs.infrastructure.persistence.mongo.repository.GameSessionMongoRepository;

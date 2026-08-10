@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import kahoot.clabs.application.port.out.integration.OrganizationMembershipPort;
+import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;

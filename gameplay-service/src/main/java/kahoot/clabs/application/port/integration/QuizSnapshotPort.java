@@ -1,4 +1,4 @@
-package kahoot.clabs.application.port.out.integration;
+package kahoot.clabs.application.port.integration;
 
 import java.util.Optional;
 import java.util.UUID;

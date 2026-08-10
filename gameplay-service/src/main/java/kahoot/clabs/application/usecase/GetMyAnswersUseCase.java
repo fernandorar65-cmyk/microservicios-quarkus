@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import kahoot.clabs.application.dto.PlayerAnswerResponse;
-import kahoot.clabs.application.port.out.read.GameSessionReadPort;
+import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.query.GetMyAnswersQuery;
 import kahoot.clabs.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.domain.exception.GameSessionNotFoundException;

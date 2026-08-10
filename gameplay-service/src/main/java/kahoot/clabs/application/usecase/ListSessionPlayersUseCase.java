@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import kahoot.clabs.application.dto.SessionPlayerResponse;
-import kahoot.clabs.application.port.out.read.GameSessionReadPort;
+import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.query.ListSessionPlayersQuery;
 import kahoot.clabs.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.domain.shared.DomainException;

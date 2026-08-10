@@ -10,8 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import kahoot.clabs.application.dto.GameSessionResponse;
-import kahoot.clabs.application.port.out.integration.OrganizationMembershipPort;
-import kahoot.clabs.application.port.out.read.GameSessionReadPort;
+import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
+import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.query.ListGameSessionsQuery;
 import kahoot.clabs.domain.valueobject.SessionStatus;
 import kahoot.clabs.domain.shared.DomainException;
