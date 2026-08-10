@@ -1,7 +1,5 @@
 package kahoot.clabs.application.usecase;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
