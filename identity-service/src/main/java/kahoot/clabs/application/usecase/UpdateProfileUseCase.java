@@ -7,9 +7,13 @@ import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.UpdateProfileCommand;
 import kahoot.clabs.application.dto.UserProfileResponse;
 import kahoot.clabs.application.port.AssetsStoragePort;
+import kahoot.clabs.application.port.write.UserProjectionPort;
+import kahoot.clabs.application.readmodel.UserReadModels;
+import kahoot.clabs.domain.aggregate.Role;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.entity.UserImages;
 import kahoot.clabs.domain.exception.UserNotFoundException;
+import kahoot.clabs.domain.repository.RoleRepository;
 import kahoot.clabs.domain.repository.UserRepository;
 import kahoot.clabs.domain.shared.DomainException;
 import kahoot.clabs.domain.valueobject.UserProfile;
@@ -20,11 +24,19 @@ public class UpdateProfileUseCase {
     private static final int MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final AssetsStoragePort avatarStoragePort;
+    private final UserProjectionPort userProjectionPort;
 
-    public UpdateProfileUseCase(UserRepository userRepository, AssetsStoragePort avatarStoragePort) {
+    public UpdateProfileUseCase(
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            AssetsStoragePort avatarStoragePort,
+            UserProjectionPort userProjectionPort) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.avatarStoragePort = avatarStoragePort;
+        this.userProjectionPort = userProjectionPort;
     }
 
     @Transactional
@@ -54,7 +66,16 @@ public class UpdateProfileUseCase {
             user.upsertImage(url, UserImages.TYPE_PROFILE, "Profile avatar", UserImages.TYPE_PROFILE);
         }
 
-        return UserProfileResponse.from(userRepository.save(user));
+        User saved = userRepository.save(user);
+        userProjectionPort.save(UserReadModels.from(saved, resolveRole(saved)));
+        return UserProfileResponse.from(saved);
+    }
+
+    private Role resolveRole(User user) {
+        if (user.getRoleId() == null) {
+            return null;
+        }
+        return roleRepository.findById(user.getRoleId()).orElse(null);
     }
 
     private void validateImage(byte[] content, String contentType) {
