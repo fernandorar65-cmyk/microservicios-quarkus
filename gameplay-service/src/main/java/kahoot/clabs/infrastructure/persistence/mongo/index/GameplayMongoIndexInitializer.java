@@ -25,7 +25,17 @@ public class GameplayMongoIndexInitializer {
 
     void onStart(@Observes StartupEvent event) {
         MongoDatabase database = mongoClient.getDatabase(databaseName);
+
+        MongoIndexSupport.ensureCollections(
+                database,
+                "game_sessions",
+                "session_players",
+                "session_questions",
+                "session_answer_options",
+                "player_answers");
+
         initializeGameSessionIndexes(database);
+        initializeSessionChildIndexes(database);
         initializeLeaderboardIndexes(database);
         initializePlayableQuizSnapshotIndexes(database);
     }
@@ -44,6 +54,46 @@ public class GameplayMongoIndexInitializer {
                 collection,
                 Indexes.ascending("players.userId"),
                 new IndexOptions().name("sessions_player_user_idx"));
+    }
+
+    private void initializeSessionChildIndexes(MongoDatabase database) {
+        MongoCollection<Document> players = database.getCollection("session_players");
+        MongoIndexSupport.ensureIndex(
+                players, Indexes.ascending("userId"), new IndexOptions().name("session_players_user_idx"));
+        MongoIndexSupport.ensureIndex(
+                players, Indexes.ascending("sessionId"), new IndexOptions().name("session_players_session_idx"));
+        MongoIndexSupport.ensureIndex(
+                players,
+                Indexes.ascending("sessionId", "userId"),
+                new IndexOptions().unique(true).name("session_players_session_user_uq"));
+
+        MongoCollection<Document> questions = database.getCollection("session_questions");
+        MongoIndexSupport.ensureIndex(
+                questions, Indexes.ascending("sessionId"), new IndexOptions().name("session_questions_session_idx"));
+        MongoIndexSupport.ensureIndex(
+                questions,
+                Indexes.ascending("sessionId", "orderIndex"),
+                new IndexOptions().unique(true).name("session_questions_session_order_uq"));
+
+        MongoCollection<Document> options = database.getCollection("session_answer_options");
+        MongoIndexSupport.ensureIndex(
+                options,
+                Indexes.ascending("sessionQuestionId"),
+                new IndexOptions().name("session_answer_options_question_idx"));
+
+        MongoCollection<Document> answers = database.getCollection("player_answers");
+        MongoIndexSupport.ensureIndex(
+                answers,
+                Indexes.ascending("sessionPlayerId"),
+                new IndexOptions().name("player_answers_player_idx"));
+        MongoIndexSupport.ensureIndex(
+                answers,
+                Indexes.ascending("sessionQuestionId"),
+                new IndexOptions().name("player_answers_question_idx"));
+        MongoIndexSupport.ensureIndex(
+                answers,
+                Indexes.ascending("sessionQuestionId", "sessionPlayerId"),
+                new IndexOptions().unique(true).name("player_answers_question_player_uq"));
     }
 
     private void initializeLeaderboardIndexes(MongoDatabase database) {

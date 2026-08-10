@@ -1,6 +1,6 @@
 package kahoot.clabs.infrastructure.persistence.mongo.document;
 
-import java.util.List;
+import java.util.UUID;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 
@@ -9,17 +9,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@MongoEntity(collection = "organization_catalogs")
+@MongoEntity(collection = "role_permissions")
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrganizationCatalogReadDocument {
+public class RolePermissionReadDocument {
 
     @BsonId
     private String id;
 
-    private List<CatalogItemEmbed> departments;
-    private List<CatalogItemEmbed> jobs;
-    private List<CatalogItemEmbed> organizationStatuses;
-    private List<CatalogItemEmbed> memberStatuses;
+    private UUID roleId;
+    private UUID permissionId;
 }

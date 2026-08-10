@@ -1,6 +1,7 @@
 package kahoot.clabs.infrastructure.persistence.mongo.index;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 
@@ -25,7 +26,10 @@ public class IdentityMongoIndexInitializer {
     }
 
     void onStart(@Observes StartupEvent event) {
-        var database = mongoClient.getDatabase(databaseName);
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+
+        MongoIndexSupport.ensureCollections(
+                database, "permissions", "roles", "role_permissions", "users", "user_images");
 
         var users = database.getCollection("users");
         MongoIndexSupport.ensureIndex(
@@ -37,5 +41,27 @@ public class IdentityMongoIndexInitializer {
         var roles = database.getCollection("roles");
         MongoIndexSupport.ensureIndex(
                 roles, Indexes.ascending("type"), new IndexOptions().unique(true).name("roles_type_uq"));
+
+        var permissions = database.getCollection("permissions");
+        MongoIndexSupport.ensureIndex(
+                permissions,
+                Indexes.ascending("name", "module"),
+                new IndexOptions().unique(true).name("permissions_name_module_uq"));
+
+        var rolePermissions = database.getCollection("role_permissions");
+        MongoIndexSupport.ensureIndex(
+                rolePermissions, Indexes.ascending("roleId"), new IndexOptions().name("role_permissions_role_idx"));
+        MongoIndexSupport.ensureIndex(
+                rolePermissions,
+                Indexes.ascending("permissionId"),
+                new IndexOptions().name("role_permissions_permission_idx"));
+
+        var userImages = database.getCollection("user_images");
+        MongoIndexSupport.ensureIndex(
+                userImages, Indexes.ascending("userId"), new IndexOptions().name("user_images_user_idx"));
+        MongoIndexSupport.ensureIndex(
+                userImages,
+                Indexes.ascending("userId", "type"),
+                new IndexOptions().name("user_images_user_type_idx"));
     }
 }

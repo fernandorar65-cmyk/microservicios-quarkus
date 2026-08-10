@@ -5,13 +5,9 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import kahoot.clabs.application.readmodel.CatalogItemReadModel;
-import kahoot.clabs.application.readmodel.OrganizationCatalogReadModel;
 import kahoot.clabs.application.readmodel.OrganizationMemberReadModel;
 import kahoot.clabs.application.readmodel.OrganizationMemberUserReadModel;
 import kahoot.clabs.application.readmodel.OrganizationReadModel;
-import kahoot.clabs.infrastructure.persistence.mongo.document.CatalogItemEmbed;
-import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationCatalogReadDocument;
 import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationMemberEmbed;
 import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationMemberUserEmbed;
 import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationReadDocument;
@@ -33,16 +29,6 @@ public class OrganizationReadMapper {
         model.setMemberCount(document.getMemberCount());
         model.setCreatedAt(document.getCreatedAt());
         model.setUpdatedAt(document.getUpdatedAt());
-        return model;
-    }
-
-    public OrganizationCatalogReadModel toReadModel(OrganizationCatalogReadDocument document) {
-        OrganizationCatalogReadModel model = new OrganizationCatalogReadModel();
-        model.setId(document.getId());
-        model.setDepartments(toCatalogItemReadModels(document.getDepartments()));
-        model.setJobs(toCatalogItemReadModels(document.getJobs()));
-        model.setOrganizationStatuses(toCatalogItemReadModels(document.getOrganizationStatuses()));
-        model.setMemberStatuses(toCatalogItemReadModels(document.getMemberStatuses()));
         return model;
     }
 
@@ -71,21 +57,6 @@ public class OrganizationReadMapper {
         OrganizationMemberUserReadModel model = new OrganizationMemberUserReadModel();
         model.setFullName(user.getFullName());
         model.setEmail(user.getEmail());
-        return model;
-    }
-
-    private List<CatalogItemReadModel> toCatalogItemReadModels(List<CatalogItemEmbed> items) {
-        if (items == null) {
-            return Collections.emptyList();
-        }
-        return items.stream().map(this::toCatalogItemReadModel).toList();
-    }
-
-    private CatalogItemReadModel toCatalogItemReadModel(CatalogItemEmbed item) {
-        CatalogItemReadModel model = new CatalogItemReadModel();
-        model.setId(item.getId());
-        model.setName(item.getName());
-        model.setDescription(item.getDescription());
         return model;
     }
 }

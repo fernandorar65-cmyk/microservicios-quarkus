@@ -26,7 +26,8 @@ do
 done
 
 echo "==> Seeding Mongo database: kahoot"
-docker exec -i "${MONGO_CONTAINER}" mongosh --quiet < "${ROOT_DIR}/05_mongo.js"
+# mongod in this compose listens on 27027 inside the container (host maps 27028→27027)
+docker exec -i "${MONGO_CONTAINER}" mongosh --port 27027 --quiet < "${ROOT_DIR}/05_mongo.js"
 
 echo "==> Seed complete"
 echo "Demo login: admin@kahoot-clabs.local / Admin123!"

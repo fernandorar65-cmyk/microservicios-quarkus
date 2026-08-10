@@ -1,6 +1,7 @@
 package kahoot.clabs.quiz.infrastructure.persistence.mongo.index;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 
@@ -25,7 +26,16 @@ public class QuizMongoIndexInitializer {
     }
 
     void onStart(@Observes StartupEvent event) {
-        var database = mongoClient.getDatabase(databaseName);
+        MongoDatabase database = mongoClient.getDatabase(databaseName);
+
+        MongoIndexSupport.ensureCollections(
+                database,
+                "quizzes",
+                "categories",
+                "quiz_categories",
+                "questions",
+                "answer_options",
+                "question_assets");
 
         var quizzes = database.getCollection("quizzes");
         MongoIndexSupport.ensureIndex(
@@ -50,5 +60,35 @@ public class QuizMongoIndexInitializer {
                 categories,
                 Indexes.ascending("organizationId"),
                 new IndexOptions().name("categories_org_idx"));
+
+        var quizCategories = database.getCollection("quiz_categories");
+        MongoIndexSupport.ensureIndex(
+                quizCategories, Indexes.ascending("quizId"), new IndexOptions().name("quiz_categories_quiz_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizCategories,
+                Indexes.ascending("categoryId"),
+                new IndexOptions().name("quiz_categories_category_idx"));
+
+        var questions = database.getCollection("questions");
+        MongoIndexSupport.ensureIndex(
+                questions, Indexes.ascending("quizId"), new IndexOptions().name("questions_quiz_idx"));
+        MongoIndexSupport.ensureIndex(
+                questions,
+                Indexes.ascending("quizId", "orderIndex"),
+                new IndexOptions().unique(true).name("questions_quiz_order_uq"));
+
+        var answerOptions = database.getCollection("answer_options");
+        MongoIndexSupport.ensureIndex(
+                answerOptions, Indexes.ascending("questionId"), new IndexOptions().name("answer_options_question_idx"));
+        MongoIndexSupport.ensureIndex(
+                answerOptions,
+                Indexes.ascending("questionId", "orderIndex"),
+                new IndexOptions().unique(true).name("answer_options_question_order_uq"));
+
+        var questionAssets = database.getCollection("question_assets");
+        MongoIndexSupport.ensureIndex(
+                questionAssets,
+                Indexes.ascending("questionId"),
+                new IndexOptions().unique(true).name("question_assets_question_uq"));
     }
 }
