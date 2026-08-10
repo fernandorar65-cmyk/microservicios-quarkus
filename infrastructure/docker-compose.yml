@@ -40,8 +40,9 @@ services:
   mongodb:
     image: mongo:7
     container_name: kahoot-mongodb
+    command: mongod --port 27027
     ports:
-      - "27018:27017"
+      - "27028:27027"
     volumes:
       - mongodb_data:/data/db
     healthcheck:
