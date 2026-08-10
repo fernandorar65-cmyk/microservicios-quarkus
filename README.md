@@ -14,7 +14,7 @@ Arquitectura hexagonal / DDD / CQRS:
 `infrastructure/docker-compose.yml`:
 
 - Postgres `5433` → DB temporal compartida `kahoot_db`
-- Mongo `27028` → DB temporal compartida `kahoot_read_db`
+- Mongo `27028` → DB temporal compartida `kahoot`
 - Kafka/Redpanda `9092`
 
 Topics: `identity.events`, `organization.events`, `quiz.events`, `gameplay.events`.

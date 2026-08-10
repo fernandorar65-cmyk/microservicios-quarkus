@@ -1,7 +1,7 @@
-// Optional Mongo demo markers for shared kahoot_read_db.
+// Optional Mongo demo markers for shared kahoot DB.
 // Read models are normally projected by the Quarkus apps; this only ensures the DB exists.
 
-db = db.getSiblingDB('kahoot_read_db');
+db = db.getSiblingDB('kahoot');
 db.createCollection('seed_meta');
 db.seed_meta.updateOne(
   { _id: 'local-demo' },
@@ -13,4 +13,4 @@ db.seed_meta.updateOne(
   },
   { upsert: true }
 );
-print('Mongo kahoot_read_db ready');
+print('Mongo kahoot ready');

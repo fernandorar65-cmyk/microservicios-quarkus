@@ -3,7 +3,7 @@
 Por ahora:
 
 - **1 Postgres**: `kahoot_db`
-- **1 Mongo**: `kahoot_read_db`
+- **1 Mongo**: `kahoot`
 - Las seeds viven **aquí**, no en los microservicios Quarkus
 
 Más adelante volverás a separar DB por servicio.

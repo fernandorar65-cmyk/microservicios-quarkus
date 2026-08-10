@@ -14,7 +14,7 @@
 #
 # Temporary shared local databases (split again later per service):
 #   Postgres: kahoot_db
-#   MongoDB:  kahoot_read_db (created on first use)
+#   MongoDB:  kahoot (created on first use)
 #
 # Demo seed data lives in infrastructure/seed/ (not inside Quarkus apps).
 

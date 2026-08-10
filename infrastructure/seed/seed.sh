@@ -25,7 +25,7 @@ do
   docker exec -i "${PG_CONTAINER}" psql -U postgres -d "${PG_DB}" < "${file}"
 done
 
-echo "==> Seeding Mongo database: kahoot_read_db"
+echo "==> Seeding Mongo database: kahoot"
 docker exec -i "${MONGO_CONTAINER}" mongosh --quiet < "${ROOT_DIR}/05_mongo.js"
 
 echo "==> Seed complete"
