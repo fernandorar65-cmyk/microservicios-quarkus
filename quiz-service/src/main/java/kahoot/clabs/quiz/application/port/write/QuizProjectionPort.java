@@ -1,4 +1,4 @@
-package kahoot.clabs.quiz.application.port.out;
+package kahoot.clabs.quiz.application.port.write;
 
 import java.util.UUID;
 

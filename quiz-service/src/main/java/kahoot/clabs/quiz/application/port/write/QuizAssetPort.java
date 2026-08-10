@@ -1,4 +1,4 @@
-package kahoot.clabs.quiz.application.port.out;
+package kahoot.clabs.quiz.application.port.write;
 
 /**
  * Port for uploading quiz-related media assets.

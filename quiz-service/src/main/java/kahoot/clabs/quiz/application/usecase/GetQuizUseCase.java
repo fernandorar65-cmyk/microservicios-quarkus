@@ -3,7 +3,7 @@ package kahoot.clabs.quiz.application.usecase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import kahoot.clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.quiz.application.port.out.read.QuizReadPort;
+import kahoot.clabs.quiz.application.port.read.QuizReadPort;
 import kahoot.clabs.quiz.application.query.GetQuizQuery;
 import kahoot.clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.quiz.domain.shared.DomainException;

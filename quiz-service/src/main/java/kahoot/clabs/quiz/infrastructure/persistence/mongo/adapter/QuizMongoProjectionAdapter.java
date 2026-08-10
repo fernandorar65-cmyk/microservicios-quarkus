@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.quiz.application.port.out.QuizProjectionPort;
-import kahoot.clabs.quiz.application.port.out.read.CategoryReadPort;
+import kahoot.clabs.quiz.application.port.read.CategoryReadPort;
+import kahoot.clabs.quiz.application.port.write.QuizProjectionPort;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizCategoryReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizReadModel;

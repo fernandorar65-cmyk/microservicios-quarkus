@@ -5,7 +5,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import kahoot.clabs.quiz.application.port.out.QuizPublishedIntegrationPort;
+import kahoot.clabs.quiz.application.port.write.QuizPublishedIntegrationPort;
 import kahoot.clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.quiz.domain.repository.QuizRepository;
 import org.jboss.logging.Logger;

@@ -1,4 +1,4 @@
-package kahoot.clabs.quiz.application.port.out.read;
+package kahoot.clabs.quiz.application.port.read;
 
 import java.util.List;
 import java.util.Optional;

@@ -11,8 +11,8 @@ import kahoot.clabs.quiz.application.event.CategoryReadModelDeletedEvent;
 import kahoot.clabs.quiz.application.event.CategoryReadModelUpsertedEvent;
 import kahoot.clabs.quiz.application.event.QuizReadModelDeletedEvent;
 import kahoot.clabs.quiz.application.event.QuizReadModelUpsertedEvent;
-import kahoot.clabs.quiz.application.port.out.CategoryProjectionPort;
-import kahoot.clabs.quiz.application.port.out.QuizProjectionPort;
+import kahoot.clabs.quiz.application.port.write.CategoryProjectionPort;
+import kahoot.clabs.quiz.application.port.write.QuizProjectionPort;
 
 @ApplicationScoped
 public class ReadModelProjectionListener {

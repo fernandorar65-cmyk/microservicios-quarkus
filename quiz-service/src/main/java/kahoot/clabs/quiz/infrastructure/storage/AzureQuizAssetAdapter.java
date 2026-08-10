@@ -11,8 +11,8 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 
+import kahoot.clabs.quiz.application.port.write.QuizAssetPort;
 import kahoot.clabs.quiz.domain.shared.DomainException;
-import kahoot.clabs.quiz.application.port.out.QuizAssetPort;
 
 public class AzureQuizAssetAdapter implements QuizAssetPort {
 
