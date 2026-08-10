@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.LoginCommand;
 import kahoot.clabs.application.dto.AuthUserResponse;
-import kahoot.clabs.application.port.PasswordHasher;
+import kahoot.clabs.application.port.write.PasswordHasher;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.exception.InvalidCredentialsException;
 import kahoot.clabs.domain.repository.UserRepository;

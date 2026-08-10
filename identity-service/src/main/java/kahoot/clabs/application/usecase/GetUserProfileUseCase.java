@@ -2,7 +2,7 @@ package kahoot.clabs.application.usecase;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.application.dto.UserProfileResponse;
-import kahoot.clabs.application.port.out.read.UserReadPort;
+import kahoot.clabs.application.port.read.UserReadPort;
 import kahoot.clabs.application.query.GetUserProfileQuery;
 import kahoot.clabs.domain.exception.UserNotFoundException;
 

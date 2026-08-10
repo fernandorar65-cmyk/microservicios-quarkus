@@ -1,4 +1,4 @@
-package kahoot.clabs.application.port;
+package kahoot.clabs.application.port.write;
 
 public interface PasswordHasher {
 

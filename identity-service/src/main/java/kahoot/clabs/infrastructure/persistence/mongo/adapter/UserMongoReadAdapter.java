@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import kahoot.clabs.application.port.out.read.UserReadPort;
+import kahoot.clabs.application.port.read.UserReadPort;
 import kahoot.clabs.application.readmodel.UserImageReadModel;
 import kahoot.clabs.application.readmodel.UserPermissionReadModel;
 import kahoot.clabs.application.readmodel.UserReadModel;

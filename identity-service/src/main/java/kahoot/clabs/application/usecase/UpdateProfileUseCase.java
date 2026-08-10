@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.UpdateProfileCommand;
 import kahoot.clabs.application.dto.UserProfileResponse;
-import kahoot.clabs.application.port.out.AssetsStoragePort;
+import kahoot.clabs.application.port.AssetsStoragePort;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.entity.UserImages;
 import kahoot.clabs.domain.exception.UserNotFoundException;

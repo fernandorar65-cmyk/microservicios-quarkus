@@ -1,7 +1,8 @@
 package kahoot.clabs.infrastructure.security;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import kahoot.clabs.application.port.PasswordHasher;
+import kahoot.clabs.application.port.write.PasswordHasher;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 @ApplicationScoped
