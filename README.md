@@ -9,7 +9,11 @@ Arquitectura hexagonal / DDD / CQRS:
 | quiz-service | 8083 | http://localhost:8083/swagger-ui | http://localhost:8083/q/openapi |
 | gameplay-service | 8084 | http://localhost:8084/swagger-ui | http://localhost:8084/q/openapi |
 
-Infra local: `infrastructure/docker-compose.yml` (Postgres `5433`, Mongo `27018`, Kafka `9092`).
+Infra local: `infrastructure/docker-compose.yml` (Postgres `5433`, Mongo `27028`, Kafka/Redpanda `9092`).
+
+Topics Kafka: `identity.events`, `organization.events`, `quiz.events`, `gameplay.events`.
+
+Flujo actual: `quiz-service` publica `QuizPublished` en `quiz.events` → `gameplay-service` proyecta snapshot local en Mongo (`playable_quiz_snapshots`).
 
 ## Seeders (demo local)
 

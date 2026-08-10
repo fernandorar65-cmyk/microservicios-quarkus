@@ -51,7 +51,7 @@ services:
       timeout: 5s
       retries: 10
 
-  # Kafka-compatible broker (Redpanda) prepared for a later messaging stage — no topics here.
+  # Kafka-compatible broker (Redpanda)
   kafka:
     image: redpandadata/redpanda:v24.3.1
     container_name: kahoot-kafka
@@ -81,6 +81,28 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
+
+  # Creates domain-oriented topics once the broker is healthy.
+  kafka-init:
+    image: redpandadata/redpanda:v24.3.1
+    container_name: kahoot-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        rpk topic create identity.events \
+          organization.events \
+          quiz.events \
+          gameplay.events \
+          --brokers kafka:9092 \
+          --partitions 3 \
+          --replicas 1 \
+          || true
+        rpk topic list --brokers kafka:9092
 
 volumes:
   postgres_data:

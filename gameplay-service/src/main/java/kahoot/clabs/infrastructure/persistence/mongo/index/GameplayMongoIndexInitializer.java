@@ -27,6 +27,7 @@ public class GameplayMongoIndexInitializer {
         MongoDatabase database = mongoClient.getDatabase(databaseName);
         initializeGameSessionIndexes(database);
         initializeLeaderboardIndexes(database);
+        initializePlayableQuizSnapshotIndexes(database);
     }
 
     private void initializeGameSessionIndexes(MongoDatabase database) {
@@ -45,5 +46,10 @@ public class GameplayMongoIndexInitializer {
         collection.createIndex(
                 Indexes.ascending("sessionId"),
                 new IndexOptions().unique(true));
+    }
+
+    private void initializePlayableQuizSnapshotIndexes(MongoDatabase database) {
+        MongoCollection<Document> collection = database.getCollection("playable_quiz_snapshots");
+        collection.createIndex(Indexes.ascending("organizationId"));
     }
 }
