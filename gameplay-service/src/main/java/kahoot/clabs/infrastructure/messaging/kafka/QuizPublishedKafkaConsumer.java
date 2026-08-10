@@ -15,9 +15,6 @@ import kahoot.clabs.infrastructure.messaging.kafka.QuizPublishedIntegrationEvent
 import kahoot.clabs.infrastructure.messaging.kafka.QuizPublishedIntegrationEvent.QuestionPayload;
 import kahoot.clabs.infrastructure.persistence.mongo.adapter.PlayableQuizSnapshotMongoAdapter;
 
-/**
- * Idempotent projection: QuizPublished → local playable quiz snapshot (Mongo).
- */
 @ApplicationScoped
 public class QuizPublishedKafkaConsumer {
 

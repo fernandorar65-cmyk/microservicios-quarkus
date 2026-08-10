@@ -9,26 +9,26 @@ Arquitectura hexagonal / DDD / CQRS:
 | quiz-service | 8083 | http://localhost:8083/swagger-ui | http://localhost:8083/q/openapi |
 | gameplay-service | 8084 | http://localhost:8084/swagger-ui | http://localhost:8084/q/openapi |
 
-Infra local: `infrastructure/docker-compose.yml` (Postgres `5433`, Mongo `27028`, Kafka/Redpanda `9092`).
+## Infra local
 
-Topics Kafka: `identity.events`, `organization.events`, `quiz.events`, `gameplay.events`.
+`infrastructure/docker-compose.yml`:
 
-Flujo actual: `quiz-service` publica `QuizPublished` en `quiz.events` → `gameplay-service` proyecta snapshot local en Mongo (`playable_quiz_snapshots`).
+- Postgres `5433` → DB temporal compartida `kahoot_db`
+- Mongo `27028` → DB temporal compartida `kahoot_read_db`
+- Kafka/Redpanda `9092`
 
-## Seeders (demo local)
+Topics: `identity.events`, `organization.events`, `quiz.events`, `gameplay.events`.
 
-Por defecto desactivados (`APP_SEED_ENABLED=false`). Para cargar datos demo:
+Los microservicios Quarkus **no ejecutan seeds**. Solo lógica + Flyway de schema.
 
-1. Levantar infra Docker.
-2. En cada `.env` (o entorno): `APP_SEED_ENABLED=true`.
-3. Arrancar en orden: **identity → organization → quiz → gameplay**.
+## Seeds (infra)
 
-IDs estables en `SeedIds` (duplicados por servicio a propósito; sin DB compartida).
+Ver `infrastructure/seed/README.md`.
 
-Credenciales demo por defecto:
+```bash
+cd infrastructure && docker compose up -d
+# arrancar los 4 quarkus (para que Flyway cree tablas)
+cd seed && ./seed.sh
+```
 
-- Admin: `admin@kahoot-clabs.local` / `Admin123!`
-- Owner: `owner@kahoot-clabs.local` / misma password
-- Member: `member@kahoot-clabs.local` / misma password
-
-Los tests fuerzan `%test.app.seed.enabled=false`.
+Credenciales demo: `admin@kahoot-clabs.local` / `Admin123!`

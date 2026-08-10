@@ -1,9 +1,7 @@
 package kahoot.clabs.infrastructure.rest;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import jakarta.inject.Inject;

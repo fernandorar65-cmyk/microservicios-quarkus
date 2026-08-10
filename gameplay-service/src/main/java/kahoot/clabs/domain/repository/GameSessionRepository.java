@@ -14,4 +14,6 @@ public interface GameSessionRepository {
     GameSession save(GameSession session);
 
     Optional<GameSession> findById(UUID id);
+
+    boolean existsById(UUID id);
 }

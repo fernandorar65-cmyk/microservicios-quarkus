@@ -1,10 +1,8 @@
 package kahoot.clabs.application.dto;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import kahoot.clabs.application.readmodel.OrganizationMemberReadModel;
 import kahoot.clabs.application.readmodel.OrganizationReadModel;
 import kahoot.clabs.domain.aggregate.Organization;
 

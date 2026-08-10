@@ -21,7 +21,7 @@ public class PlayerAnswerPanacheRepository implements PanacheRepositoryBase<Play
         if (playerIds == null || playerIds.isEmpty()) {
             return List.of();
         }
-        return list("sessionPlayer.id in ?1", playerIds);
+        return list("session_players.id in ?1", playerIds);
     }
 
     @Transactional
@@ -34,7 +34,7 @@ public class PlayerAnswerPanacheRepository implements PanacheRepositoryBase<Play
             deleteBySessionPlayerIdIn(playerIds);
             return;
         }
-        delete("sessionPlayer.id in ?1 and id not in ?2", playerIds, answerIds);
+        delete("session_players.id in ?1 and id not in ?2", playerIds, answerIds);
     }
 
     @Transactional
@@ -42,6 +42,6 @@ public class PlayerAnswerPanacheRepository implements PanacheRepositoryBase<Play
         if (playerIds == null || playerIds.isEmpty()) {
             return;
         }
-        delete("sessionPlayer.id in ?1", playerIds);
+        delete("session_players.id in ?1", playerIds);
     }
 }

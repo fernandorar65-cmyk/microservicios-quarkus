@@ -28,11 +28,14 @@ public class IdentityMongoIndexInitializer {
         var database = mongoClient.getDatabase(databaseName);
 
         var users = database.getCollection("users");
-        users.createIndex(Indexes.ascending("email"), new IndexOptions().unique(true));
-        users.createIndex(Indexes.ascending("status"));
-        users.createIndex(Indexes.ascending("role.type"));
+        MongoIndexSupport.ensureIndex(
+                users, Indexes.ascending("email"), new IndexOptions().unique(true).name("users_email_uq"));
+        MongoIndexSupport.ensureIndex(users, Indexes.ascending("status"), new IndexOptions().name("users_status_idx"));
+        MongoIndexSupport.ensureIndex(
+                users, Indexes.ascending("role.type"), new IndexOptions().name("users_role_type_idx"));
 
         var roles = database.getCollection("roles");
-        roles.createIndex(Indexes.ascending("type"), new IndexOptions().unique(true));
+        MongoIndexSupport.ensureIndex(
+                roles, Indexes.ascending("type"), new IndexOptions().unique(true).name("roles_type_uq"));
     }
 }

@@ -28,17 +28,27 @@ public class QuizMongoIndexInitializer {
         var database = mongoClient.getDatabase(databaseName);
 
         var quizzes = database.getCollection("quizzes");
-        quizzes.createIndex(Indexes.ascending("organizationId"));
-        quizzes.createIndex(Indexes.ascending("createdBy"));
-        quizzes.createIndex(Indexes.ascending("status"));
-        quizzes.createIndex(Indexes.ascending("difficulty"));
-        quizzes.createIndex(Indexes.ascending("categories.id"));
-        quizzes.createIndex(Indexes.ascending("title"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("organizationId"), new IndexOptions().name("quizzes_org_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("createdBy"), new IndexOptions().name("quizzes_created_by_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("status"), new IndexOptions().name("quizzes_status_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("difficulty"), new IndexOptions().name("quizzes_difficulty_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("categories.id"), new IndexOptions().name("quizzes_category_idx"));
+        MongoIndexSupport.ensureIndex(
+                quizzes, Indexes.ascending("title"), new IndexOptions().name("quizzes_title_idx"));
 
         var categories = database.getCollection("categories");
-        categories.createIndex(
+        MongoIndexSupport.ensureIndex(
+                categories,
                 Indexes.ascending("organizationId", "name"),
-                new IndexOptions().unique(true));
-        categories.createIndex(Indexes.ascending("organizationId"));
+                new IndexOptions().unique(true).name("categories_org_name_uq"));
+        MongoIndexSupport.ensureIndex(
+                categories,
+                Indexes.ascending("organizationId"),
+                new IndexOptions().name("categories_org_idx"));
     }
 }

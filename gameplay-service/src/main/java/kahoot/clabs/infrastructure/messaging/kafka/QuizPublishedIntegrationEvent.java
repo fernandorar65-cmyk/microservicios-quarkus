@@ -4,10 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Local copy of the quiz.events / QuizPublished Kafka contract.
- * Duplicated intentionally — gameplay must not depend on quiz-service classes.
- */
 public record QuizPublishedIntegrationEvent(
         UUID eventId,
         String eventType,

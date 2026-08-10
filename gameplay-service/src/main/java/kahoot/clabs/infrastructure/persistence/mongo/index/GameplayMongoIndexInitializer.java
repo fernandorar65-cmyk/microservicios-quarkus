@@ -32,24 +32,33 @@ public class GameplayMongoIndexInitializer {
 
     private void initializeGameSessionIndexes(MongoDatabase database) {
         MongoCollection<Document> collection = database.getCollection("game_sessions");
-
-        collection.createIndex(Indexes.ascending("organizationId"));
-        collection.createIndex(Indexes.ascending("quizId"));
-        collection.createIndex(Indexes.ascending("hostUserId"));
-        collection.createIndex(Indexes.ascending("status"));
-        collection.createIndex(Indexes.ascending("players.userId"));
+        MongoIndexSupport.ensureIndex(
+                collection, Indexes.ascending("organizationId"), new IndexOptions().name("sessions_org_idx"));
+        MongoIndexSupport.ensureIndex(
+                collection, Indexes.ascending("quizId"), new IndexOptions().name("sessions_quiz_idx"));
+        MongoIndexSupport.ensureIndex(
+                collection, Indexes.ascending("hostUserId"), new IndexOptions().name("sessions_host_idx"));
+        MongoIndexSupport.ensureIndex(
+                collection, Indexes.ascending("status"), new IndexOptions().name("sessions_status_idx"));
+        MongoIndexSupport.ensureIndex(
+                collection,
+                Indexes.ascending("players.userId"),
+                new IndexOptions().name("sessions_player_user_idx"));
     }
 
     private void initializeLeaderboardIndexes(MongoDatabase database) {
         MongoCollection<Document> collection = database.getCollection("leaderboards");
-
-        collection.createIndex(
+        MongoIndexSupport.ensureIndex(
+                collection,
                 Indexes.ascending("sessionId"),
-                new IndexOptions().unique(true));
+                new IndexOptions().unique(true).name("leaderboards_session_uq"));
     }
 
     private void initializePlayableQuizSnapshotIndexes(MongoDatabase database) {
         MongoCollection<Document> collection = database.getCollection("playable_quiz_snapshots");
-        collection.createIndex(Indexes.ascending("organizationId"));
+        MongoIndexSupport.ensureIndex(
+                collection,
+                Indexes.ascending("organizationId"),
+                new IndexOptions().name("playable_quiz_org_idx"));
     }
 }

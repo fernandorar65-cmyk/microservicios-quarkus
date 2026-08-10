@@ -44,6 +44,11 @@ public class GameSessionRepositoryAdapter implements GameSessionRepository {
         return sessionRepository.findByIdWithDetails(id).map(this::toAggregate);
     }
 
+    @Override
+    public boolean existsById(UUID id) {
+        return sessionRepository.existsById(id);
+    }
+
     private GameSession toAggregate(GameSessionJpaEntity entity) {
         return GameSessionPersistenceMapper.toDomain(entity, loadAnswers(entity));
     }

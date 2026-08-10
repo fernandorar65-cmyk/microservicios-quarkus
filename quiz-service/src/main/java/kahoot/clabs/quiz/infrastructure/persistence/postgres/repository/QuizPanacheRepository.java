@@ -14,18 +14,32 @@ import kahoot.clabs.quiz.infrastructure.persistence.postgres.entity.QuizJpaEntit
 @ApplicationScoped
 public class QuizPanacheRepository implements PanacheRepositoryBase<QuizJpaEntity, UUID> {
 
-    private static final String AGGREGATE_FETCH = """
-            select distinct q
-            from QuizJpaEntity q
-            left join fetch q.categories
-            left join fetch q.questions questions
-            left join fetch questions.answerOptions
-            left join fetch questions.asset
-            """;
-
-    /** Command rehydration of the Quiz aggregate graph. */
+    /**
+     * Split fetches avoid Hibernate {@code MultipleBagFetchException}
+     * ({@code questions} + nested {@code answerOptions} are bags).
+     */
     public Optional<QuizJpaEntity> findByIdWithDetails(UUID id) {
-        return find(AGGREGATE_FETCH + " where q.id = ?1", id).firstResultOptional();
+        Optional<QuizJpaEntity> quiz = find("""
+                select distinct q
+                from QuizJpaEntity q
+                left join fetch q.categories
+                left join fetch q.questions questions
+                left join fetch questions.asset
+                where q.id = ?1
+                """, id).firstResultOptional();
+        if (quiz.isEmpty()) {
+            return Optional.empty();
+        }
+
+        find("""
+                select distinct q
+                from QuizJpaEntity q
+                left join fetch q.questions questions
+                left join fetch questions.answerOptions
+                where q.id = ?1
+                """, id).firstResultOptional();
+
+        return quiz;
     }
 
     public boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title) {

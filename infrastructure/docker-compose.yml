@@ -12,11 +12,11 @@
 # mongod that may already use 27017.
 # Connection strings in each service default to localhost:27018.
 #
-# Databases (tables owned by each service Flyway):
-#   identity_db, organization_db, quiz_db, gameplay_db
+# Temporary shared local databases (split again later per service):
+#   Postgres: kahoot_db
+#   MongoDB:  kahoot_read_db (created on first use)
 #
-# MongoDB logical DBs (created on first use):
-#   identity_read_db, organization_read_db, quiz_read_db, gameplay_read_db
+# Demo seed data lives in infrastructure/seed/ (not inside Quarkus apps).
 
 services:
   postgres:

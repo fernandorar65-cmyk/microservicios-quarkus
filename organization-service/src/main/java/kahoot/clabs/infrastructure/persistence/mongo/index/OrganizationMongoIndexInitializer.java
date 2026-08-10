@@ -28,8 +28,15 @@ public class OrganizationMongoIndexInitializer {
         MongoCollection<Document> organizations =
                 mongoClient.getDatabase(database).getCollection(ORGANIZATIONS_COLLECTION);
 
-        organizations.createIndex(Indexes.ascending("slug"), new IndexOptions().unique(true));
-        organizations.createIndex(Indexes.ascending("status"));
-        organizations.createIndex(Indexes.ascending("members.userId"));
+        MongoIndexSupport.ensureIndex(
+                organizations,
+                Indexes.ascending("slug"),
+                new IndexOptions().unique(true).name("organizations_slug_uq"));
+        MongoIndexSupport.ensureIndex(
+                organizations, Indexes.ascending("status"), new IndexOptions().name("organizations_status_idx"));
+        MongoIndexSupport.ensureIndex(
+                organizations,
+                Indexes.ascending("members.userId"),
+                new IndexOptions().name("organizations_members_user_idx"));
     }
 }
