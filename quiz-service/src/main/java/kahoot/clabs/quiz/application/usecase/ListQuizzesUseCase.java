@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import kahoot.clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.quiz.application.port.out.read.QuizReadPort;
+import kahoot.clabs.quiz.application.port.read.QuizReadPort;
 import kahoot.clabs.quiz.application.query.ListQuizzesQuery;
 
 @ApplicationScoped

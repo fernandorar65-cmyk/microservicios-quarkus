@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import kahoot.clabs.quiz.application.port.out.read.CategoryReadPort;
+import kahoot.clabs.quiz.application.port.read.CategoryReadPort;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.quiz.infrastructure.persistence.mongo.document.CategoryReadDocument;
 import kahoot.clabs.quiz.infrastructure.persistence.mongo.repository.CategoryMongoRepository;

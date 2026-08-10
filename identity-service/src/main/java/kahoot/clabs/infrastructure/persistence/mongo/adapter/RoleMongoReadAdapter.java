@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import kahoot.clabs.application.port.out.read.RoleReadPort;
+import kahoot.clabs.application.port.read.RoleReadPort;
 import kahoot.clabs.application.readmodel.RolePermissionReadModel;
 import kahoot.clabs.application.readmodel.RoleReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.document.RolePermissionEmbed;

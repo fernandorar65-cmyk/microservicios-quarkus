@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import kahoot.clabs.quiz.application.port.out.read.QuizReadPort;
+import kahoot.clabs.quiz.application.port.read.QuizReadPort;
 import kahoot.clabs.quiz.application.readmodel.QuizAnswerOptionReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizAssetReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizCategoryReadModel;

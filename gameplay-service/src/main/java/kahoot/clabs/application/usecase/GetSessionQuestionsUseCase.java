@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 
 import kahoot.clabs.application.dto.QuestionResultResponse;
 import kahoot.clabs.application.dto.SessionQuestionResponse;
-import kahoot.clabs.application.port.out.read.GameSessionReadPort;
+import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.query.GetCurrentSessionQuestionQuery;
 import kahoot.clabs.application.query.GetSessionQuestionResultQuery;
 import kahoot.clabs.application.query.ListSessionQuestionsQuery;

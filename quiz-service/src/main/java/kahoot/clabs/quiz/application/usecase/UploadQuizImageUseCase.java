@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.quiz.application.port.out.QuizAssetPort;
+import kahoot.clabs.quiz.application.port.write.QuizAssetPort;
 import kahoot.clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.quiz.domain.shared.DomainException;

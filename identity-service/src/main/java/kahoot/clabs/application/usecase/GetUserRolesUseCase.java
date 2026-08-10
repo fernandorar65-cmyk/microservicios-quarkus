@@ -5,8 +5,8 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.application.dto.UserRoleResponse;
-import kahoot.clabs.application.port.out.read.RoleReadPort;
-import kahoot.clabs.application.port.out.read.UserReadPort;
+import kahoot.clabs.application.port.read.RoleReadPort;
+import kahoot.clabs.application.port.read.UserReadPort;
 import kahoot.clabs.application.query.GetUserRolesQuery;
 import kahoot.clabs.application.readmodel.UserReadModel;
 import kahoot.clabs.domain.exception.UserNotFoundException;

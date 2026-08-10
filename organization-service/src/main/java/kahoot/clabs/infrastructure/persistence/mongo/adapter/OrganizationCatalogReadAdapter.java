@@ -6,8 +6,7 @@ import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import kahoot.clabs.application.port.out.read.OrganizationCatalogReadPort;
+import kahoot.clabs.application.port.read.OrganizationCatalogReadPort;
 import kahoot.clabs.application.readmodel.CatalogItemReadModel;
 import kahoot.clabs.application.readmodel.OrganizationCatalogReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationDepartmentReadDocument;

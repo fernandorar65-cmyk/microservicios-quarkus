@@ -8,9 +8,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
+import kahoot.clabs.application.port.blob.AssetsStoragePort;
 import kahoot.clabs.domain.shared.DomainException;
-import kahoot.clabs.application.port.out.AssetsStoragePort;
 
 public class AwsAssetsStorageAdapter implements AssetsStoragePort {
 

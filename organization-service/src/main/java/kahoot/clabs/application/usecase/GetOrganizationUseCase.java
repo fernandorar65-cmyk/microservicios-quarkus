@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import kahoot.clabs.application.dto.OrganizationResponse;
-import kahoot.clabs.application.port.out.read.OrganizationReadPort;
+import kahoot.clabs.application.port.read.OrganizationReadPort;
 import kahoot.clabs.application.query.GetOrganizationQuery;
 import kahoot.clabs.domain.exception.OrganizationNotFoundException;
 

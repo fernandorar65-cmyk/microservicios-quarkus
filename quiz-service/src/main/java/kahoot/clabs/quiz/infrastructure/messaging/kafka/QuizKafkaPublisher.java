@@ -7,7 +7,7 @@ import org.jboss.logging.Logger;
 import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.quiz.application.port.out.QuizPublishedIntegrationPort;
+import kahoot.clabs.quiz.application.port.write.QuizPublishedIntegrationPort;
 import kahoot.clabs.quiz.domain.aggregate.Quiz;
 
 @ApplicationScoped

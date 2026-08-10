@@ -5,9 +5,9 @@ import java.util.Optional;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import kahoot.clabs.application.port.blob.AssetsStoragePort;
 
-import kahoot.clabs.application.port.out.AssetsStoragePort;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class ConfigurableAssetsStorageAdapter implements AssetsStoragePort {

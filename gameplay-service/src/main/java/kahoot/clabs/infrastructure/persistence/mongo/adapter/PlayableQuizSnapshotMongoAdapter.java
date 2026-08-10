@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.application.port.out.PlayableQuizSnapshotPort;
-import kahoot.clabs.application.port.out.integration.QuizSnapshotPort;
+import kahoot.clabs.application.port.integration.QuizSnapshotPort;
+import kahoot.clabs.application.port.write.PlayableQuizSnapshotPort;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.PlayableQuizSnapshotMapper;
 import kahoot.clabs.infrastructure.persistence.mongo.repository.PlayableQuizSnapshotMongoRepository;

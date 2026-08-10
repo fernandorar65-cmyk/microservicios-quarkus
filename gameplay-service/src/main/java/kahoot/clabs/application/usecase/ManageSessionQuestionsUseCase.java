@@ -9,7 +9,7 @@ import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.HostActionCommand;
 import kahoot.clabs.application.command.OpenQuestionCommand;
 import kahoot.clabs.application.dto.GameSessionResponse;
-import kahoot.clabs.application.port.out.integration.OrganizationMembershipPort;
+import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.domain.aggregate.GameSession;
 import kahoot.clabs.domain.repository.GameSessionRepository;
 

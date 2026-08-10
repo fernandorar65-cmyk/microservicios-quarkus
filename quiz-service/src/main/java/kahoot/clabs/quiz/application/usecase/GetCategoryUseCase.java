@@ -5,7 +5,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import kahoot.clabs.quiz.application.dto.CategoryResponse;
-import kahoot.clabs.quiz.application.port.out.read.CategoryReadPort;
+import kahoot.clabs.quiz.application.port.read.CategoryReadPort;
 import kahoot.clabs.quiz.domain.shared.DomainException;
 
 @ApplicationScoped

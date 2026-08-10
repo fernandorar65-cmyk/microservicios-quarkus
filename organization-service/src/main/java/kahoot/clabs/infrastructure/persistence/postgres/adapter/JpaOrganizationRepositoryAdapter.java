@@ -7,8 +7,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import kahoot.clabs.application.port.out.OrganizationProjectionPort;
+import kahoot.clabs.application.port.write.OrganizationProjectionPort;
 import kahoot.clabs.application.readmodel.OrganizationReadModels;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.entity.OrganizationMember;

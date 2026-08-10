@@ -5,9 +5,9 @@ import java.util.Optional;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import kahoot.clabs.quiz.application.port.write.QuizAssetPort;
 
-import kahoot.clabs.quiz.application.port.out.QuizAssetPort;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class ConfigurableQuizAssetAdapter implements QuizAssetPort {

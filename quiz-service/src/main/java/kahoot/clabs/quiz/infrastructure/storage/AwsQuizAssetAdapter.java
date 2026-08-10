@@ -8,9 +8,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
+import kahoot.clabs.quiz.application.port.write.QuizAssetPort;
 import kahoot.clabs.quiz.domain.shared.DomainException;
-import kahoot.clabs.quiz.application.port.out.QuizAssetPort;
 
 public class AwsQuizAssetAdapter implements QuizAssetPort {
 

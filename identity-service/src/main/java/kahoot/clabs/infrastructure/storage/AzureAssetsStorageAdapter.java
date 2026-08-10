@@ -11,8 +11,8 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 
+import kahoot.clabs.application.port.AssetsStoragePort;
 import kahoot.clabs.domain.shared.DomainException;
-import kahoot.clabs.application.port.out.AssetsStoragePort;
 
 public class AzureAssetsStorageAdapter implements AssetsStoragePort {
 

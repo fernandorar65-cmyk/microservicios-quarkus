@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.quiz.application.port.out.CategoryProjectionPort;
+import kahoot.clabs.quiz.application.port.write.CategoryProjectionPort;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.quiz.infrastructure.persistence.mongo.document.CategoryReadDocument;
 import kahoot.clabs.quiz.infrastructure.persistence.mongo.repository.CategoryMongoRepository;
