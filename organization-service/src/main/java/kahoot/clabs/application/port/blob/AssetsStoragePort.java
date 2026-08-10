@@ -1,4 +1,4 @@
-package kahoot.clabs.application.port.out;
+package kahoot.clabs.application.port.blob;
 
 /**
  * Technology-agnostic port for object/blob storage uploads.

@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 
 import kahoot.clabs.application.command.CreateOrganizationCommand;
 import kahoot.clabs.application.dto.OrganizationResponse;
-import kahoot.clabs.application.port.out.AssetsStoragePort;
+import kahoot.clabs.application.port.blob.AssetsStoragePort;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.exception.OrganizationSlugAlreadyTakenException;
 import kahoot.clabs.domain.repository.OrganizationRepository;

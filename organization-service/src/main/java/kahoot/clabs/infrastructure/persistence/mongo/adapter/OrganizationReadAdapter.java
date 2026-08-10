@@ -5,8 +5,7 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import kahoot.clabs.application.port.out.read.OrganizationReadPort;
+import kahoot.clabs.application.port.read.OrganizationReadPort;
 import kahoot.clabs.application.readmodel.OrganizationReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.OrganizationReadMapper;
 import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationMongoRepository;

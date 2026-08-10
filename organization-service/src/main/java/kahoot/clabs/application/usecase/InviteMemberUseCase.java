@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 
 import kahoot.clabs.application.command.InviteMemberCommand;
 import kahoot.clabs.application.dto.OrganizationResponse;
-import kahoot.clabs.application.port.out.integration.UserDirectoryPort;
+import kahoot.clabs.application.port.integration.UserDirectoryPort;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.exception.OrganizationNotFoundException;
 import kahoot.clabs.domain.repository.OrganizationRepository;
