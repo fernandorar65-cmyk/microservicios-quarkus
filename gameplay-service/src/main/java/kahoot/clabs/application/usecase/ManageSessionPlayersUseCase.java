@@ -11,6 +11,9 @@ import kahoot.clabs.application.command.LeaveSessionCommand;
 import kahoot.clabs.application.command.UpdateNicknameCommand;
 import kahoot.clabs.application.dto.GameSessionResponse;
 import kahoot.clabs.application.dto.SessionPlayerResponse;
+import kahoot.clabs.application.event.GameSessionIntegrationEvent;
+import kahoot.clabs.application.event.GameSessionProjectionSnapshot;
+import kahoot.clabs.application.port.integration.GameSessionEventPublisher;
 import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.domain.aggregate.GameSession;
 import kahoot.clabs.domain.repository.GameSessionRepository;
@@ -24,13 +27,19 @@ public class ManageSessionPlayersUseCase {
     @Inject
     OrganizationMembershipPort organizationMembershipPort;
 
+    @Inject
+    GameSessionEventPublisher gameSessionEventPublisher;
+
     @Transactional
     public GameSessionResponse join(UUID organizationId, UUID sessionId, JoinSessionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.userId());
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.join(command.userId(), command.nickname());
-        return GameSessionResponse.from(gameSessionRepository.save(session));
+        GameSession saved = gameSessionRepository.save(session);
+        gameSessionEventPublisher.publish(
+                GameSessionIntegrationEvent.playerJoined(GameSessionProjectionSnapshot.from(saved)));
+        return GameSessionResponse.from(saved);
     }
 
     @Transactional
@@ -39,7 +48,10 @@ public class ManageSessionPlayersUseCase {
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.userId());
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.leave(command.userId());
-        return GameSessionResponse.from(gameSessionRepository.save(session));
+        GameSession saved = gameSessionRepository.save(session);
+        gameSessionEventPublisher.publish(
+                GameSessionIntegrationEvent.playerLeft(GameSessionProjectionSnapshot.from(saved)));
+        return GameSessionResponse.from(saved);
     }
 
     @Transactional
@@ -50,6 +62,8 @@ public class ManageSessionPlayersUseCase {
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.changeNickname(command.userId(), command.nickname());
         GameSession saved = gameSessionRepository.save(session);
+        gameSessionEventPublisher.publish(
+                GameSessionIntegrationEvent.playerNicknameUpdated(GameSessionProjectionSnapshot.from(saved)));
         return SessionPlayerResponse.from(saved.findPlayerByUserId(command.userId()).orElseThrow());
     }
 }

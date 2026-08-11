@@ -8,6 +8,9 @@ import jakarta.transaction.Transactional;
 
 import kahoot.clabs.application.command.CreateGameSessionCommand;
 import kahoot.clabs.application.dto.GameSessionResponse;
+import kahoot.clabs.application.event.GameSessionIntegrationEvent;
+import kahoot.clabs.application.event.GameSessionProjectionSnapshot;
+import kahoot.clabs.application.port.integration.GameSessionEventPublisher;
 import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.application.port.integration.QuizSnapshotPort;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
@@ -27,6 +30,9 @@ public class CreateGameSessionUseCase {
     @Inject
     QuizSnapshotPort quizSnapshotPort;
 
+    @Inject
+    GameSessionEventPublisher gameSessionEventPublisher;
+
     @Transactional
     public GameSessionResponse execute(UUID organizationId, CreateGameSessionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
@@ -39,6 +45,9 @@ public class CreateGameSessionUseCase {
 
         GameSession session = GameSession.create(organizationId, snapshot.quizId(), command.hostUserId());
         GameSessionSupport.freezeFromSnapshot(session, snapshot);
-        return GameSessionResponse.from(gameSessionRepository.save(session));
+        GameSession saved = gameSessionRepository.save(session);
+        gameSessionEventPublisher.publish(
+                GameSessionIntegrationEvent.sessionCreated(GameSessionProjectionSnapshot.from(saved)));
+        return GameSessionResponse.from(saved);
     }
 }
