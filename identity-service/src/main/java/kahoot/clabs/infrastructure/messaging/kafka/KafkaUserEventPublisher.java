@@ -7,7 +7,7 @@ import org.jboss.logging.Logger;
 import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.application.event.UserCreatedEvent;
+import kahoot.clabs.application.event.UserIntegrationEvent;
 import kahoot.clabs.application.port.integration.UserEventPublisher;
 
 @ApplicationScoped
@@ -15,20 +15,21 @@ public class KafkaUserEventPublisher implements UserEventPublisher {
 
     private static final Logger LOG = Logger.getLogger(KafkaUserEventPublisher.class);
 
-    private final Emitter<Record<String, UserCreatedEvent>> emitter;
+    private final Emitter<Record<String, UserIntegrationEvent>> emitter;
 
     @Inject
     public KafkaUserEventPublisher(
-            @Channel("user-created-out") Emitter<Record<String, UserCreatedEvent>> emitter) {
+            @Channel("user-events-out") Emitter<Record<String, UserIntegrationEvent>> emitter) {
         this.emitter = emitter;
     }
 
     @Override
-    public void publish(UserCreatedEvent event) {
+    public void publish(UserIntegrationEvent event) {
         LOG.infof(
-                "Publishing UserCreated to identity.user.created userId=%s email=%s",
-                event.userId(),
-                event.email());
-        emitter.send(Record.of(event.userId().toString(), event));
+                "Publishing %s to identity.user.events userId=%s eventId=%s",
+                event.eventType(),
+                event.aggregateId(),
+                event.eventId());
+        emitter.send(Record.of(event.aggregateId().toString(), event));
     }
 }

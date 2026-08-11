@@ -6,7 +6,10 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 
-import kahoot.clabs.application.event.UserCreatedEvent;
+import kahoot.clabs.application.event.UserImagePayload;
+import kahoot.clabs.application.event.UserPermissionPayload;
+import kahoot.clabs.application.event.UserProjectionSnapshot;
+import kahoot.clabs.application.event.UserRolePayload;
 import kahoot.clabs.domain.aggregate.Role;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.entity.Permission;
@@ -18,18 +21,23 @@ public final class UserReadModels {
     private UserReadModels() {
     }
 
-    public static UserReadModel from(UserCreatedEvent event) {
+    public static UserReadModel from(UserProjectionSnapshot snapshot) {
         UserReadModel model = new UserReadModel();
-        model.setId(event.userId());
-        model.setEmail(event.email());
-        model.setFirstName(event.firstName());
-        model.setLastName(event.lastName());
-        model.setFullName(event.firstName() + " " + event.lastName());
-        model.setStatus(event.status());
-        model.setRole(null);
-        model.setImages(Collections.emptyList());
-        model.setCreatedAt(event.createdAt());
-        model.setUpdatedAt(event.updatedAt());
+        model.setId(snapshot.userId());
+        model.setEmail(snapshot.email());
+        model.setFirstName(snapshot.firstName());
+        model.setLastName(snapshot.lastName());
+        model.setFullName(snapshot.firstName() + " " + snapshot.lastName());
+        model.setStatus(snapshot.status());
+        model.setPhoneNumber(snapshot.phoneNumber());
+        model.setBirthDate(snapshot.birthDate());
+        model.setBio(snapshot.bio());
+        model.setLocation(snapshot.location());
+        model.setLastLogin(snapshot.lastLogin());
+        model.setRole(toRoleReadModel(snapshot.role()));
+        model.setImages(toImageReadModels(snapshot.images()));
+        model.setCreatedAt(snapshot.createdAt());
+        model.setUpdatedAt(snapshot.updatedAt());
         return model;
     }
 
@@ -70,11 +78,44 @@ public final class UserReadModels {
         return model;
     }
 
+    private static UserRoleReadModel toRoleReadModel(UserRolePayload role) {
+        if (role == null) {
+            return null;
+        }
+        UserRoleReadModel model = new UserRoleReadModel();
+        model.setId(role.id());
+        model.setName(role.name());
+        model.setType(role.type());
+        model.setPermissions(toPermissionReadModels(role.permissions()));
+        return model;
+    }
+
+    private static List<UserPermissionReadModel> toPermissionReadModels(List<UserPermissionPayload> permissions) {
+        if (permissions == null || permissions.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return permissions.stream().map(UserReadModels::toPermissionReadModel).toList();
+    }
+
     private static UserPermissionReadModel toPermissionReadModel(Permission permission) {
         UserPermissionReadModel model = new UserPermissionReadModel();
         model.setName(permission.getName());
         model.setModule(permission.getModule());
         return model;
+    }
+
+    private static UserPermissionReadModel toPermissionReadModel(UserPermissionPayload permission) {
+        UserPermissionReadModel model = new UserPermissionReadModel();
+        model.setName(permission.name());
+        model.setModule(permission.module());
+        return model;
+    }
+
+    private static List<UserImageReadModel> toImageReadModels(List<UserImagePayload> images) {
+        if (images == null || images.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return images.stream().map(UserReadModels::toImageReadModel).toList();
     }
 
     private static UserImageReadModel toImageReadModel(UserImages image) {
@@ -84,6 +125,16 @@ public final class UserReadModels {
         model.setType(image.getType());
         model.setAlt(image.getAlt());
         model.setSlug(image.getSlug());
+        return model;
+    }
+
+    private static UserImageReadModel toImageReadModel(UserImagePayload image) {
+        UserImageReadModel model = new UserImageReadModel();
+        model.setId(image.id());
+        model.setUrl(image.url());
+        model.setType(image.type());
+        model.setAlt(image.alt());
+        model.setSlug(image.slug());
         return model;
     }
 

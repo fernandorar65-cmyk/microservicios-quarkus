@@ -1,12 +1,11 @@
 package kahoot.clabs.application.usecase;
 
-import java.time.ZoneOffset;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.RegisterUserCommand;
 import kahoot.clabs.application.dto.AuthUserResponse;
-import kahoot.clabs.application.event.UserCreatedEvent;
+import kahoot.clabs.application.event.UserIntegrationEvent;
+import kahoot.clabs.application.event.UserProjectionSnapshot;
 import kahoot.clabs.application.port.integration.UserEventPublisher;
 import kahoot.clabs.application.port.write.PasswordHasher;
 import kahoot.clabs.domain.aggregate.User;
@@ -46,18 +45,7 @@ public class RegisterUserUseCase {
                 hashedPassword);
 
         User saved = userRepository.save(user);
-        userEventPublisher.publish(toUserCreatedEvent(saved));
+        userEventPublisher.publish(UserIntegrationEvent.userCreated(UserProjectionSnapshot.from(saved, null)));
         return AuthUserResponse.from(saved);
-    }
-
-    private static UserCreatedEvent toUserCreatedEvent(User user) {
-        return new UserCreatedEvent(
-                user.getId(),
-                user.getEmail().value(),
-                user.getFullName().firstName(),
-                user.getFullName().lastName(),
-                user.getStatus().name(),
-                user.getCreatedAt().toInstant(ZoneOffset.UTC),
-                user.getUpdatedAt().toInstant(ZoneOffset.UTC));
     }
 }

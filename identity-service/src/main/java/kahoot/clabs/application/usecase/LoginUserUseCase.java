@@ -4,9 +4,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.LoginCommand;
 import kahoot.clabs.application.dto.AuthUserResponse;
+import kahoot.clabs.application.event.UserIntegrationEvent;
+import kahoot.clabs.application.event.UserProjectionSnapshot;
+import kahoot.clabs.application.port.integration.UserEventPublisher;
 import kahoot.clabs.application.port.write.PasswordHasher;
-import kahoot.clabs.application.port.write.UserProjectionPort;
-import kahoot.clabs.application.readmodel.UserReadModels;
 import kahoot.clabs.domain.aggregate.Role;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.exception.InvalidCredentialsException;
@@ -19,17 +20,17 @@ public class LoginUserUseCase {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordHasher passwordHasher;
-    private final UserProjectionPort userProjectionPort;
+    private final UserEventPublisher userEventPublisher;
 
     public LoginUserUseCase(
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordHasher passwordHasher,
-            UserProjectionPort userProjectionPort) {
+            UserEventPublisher userEventPublisher) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordHasher = passwordHasher;
-        this.userProjectionPort = userProjectionPort;
+        this.userEventPublisher = userEventPublisher;
     }
 
     @Transactional
@@ -43,7 +44,8 @@ public class LoginUserUseCase {
 
         user.recordLogin();
         User saved = userRepository.save(user);
-        userProjectionPort.save(UserReadModels.from(saved, resolveRole(saved)));
+        userEventPublisher.publish(UserIntegrationEvent.loggedIn(
+                UserProjectionSnapshot.from(saved, resolveRole(saved))));
         return AuthUserResponse.from(saved);
     }
 

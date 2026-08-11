@@ -6,9 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.UpdateProfileCommand;
 import kahoot.clabs.application.dto.UserProfileResponse;
+import kahoot.clabs.application.event.UserIntegrationEvent;
+import kahoot.clabs.application.event.UserProjectionSnapshot;
 import kahoot.clabs.application.port.AssetsStoragePort;
-import kahoot.clabs.application.port.write.UserProjectionPort;
-import kahoot.clabs.application.readmodel.UserReadModels;
+import kahoot.clabs.application.port.integration.UserEventPublisher;
 import kahoot.clabs.domain.aggregate.Role;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.entity.UserImages;
@@ -26,17 +27,17 @@ public class UpdateProfileUseCase {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AssetsStoragePort avatarStoragePort;
-    private final UserProjectionPort userProjectionPort;
+    private final UserEventPublisher userEventPublisher;
 
     public UpdateProfileUseCase(
             UserRepository userRepository,
             RoleRepository roleRepository,
             AssetsStoragePort avatarStoragePort,
-            UserProjectionPort userProjectionPort) {
+            UserEventPublisher userEventPublisher) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.avatarStoragePort = avatarStoragePort;
-        this.userProjectionPort = userProjectionPort;
+        this.userEventPublisher = userEventPublisher;
     }
 
     @Transactional
@@ -67,7 +68,8 @@ public class UpdateProfileUseCase {
         }
 
         User saved = userRepository.save(user);
-        userProjectionPort.save(UserReadModels.from(saved, resolveRole(saved)));
+        userEventPublisher.publish(UserIntegrationEvent.profileUpdated(
+                UserProjectionSnapshot.from(saved, resolveRole(saved))));
         return UserProfileResponse.from(saved);
     }
 

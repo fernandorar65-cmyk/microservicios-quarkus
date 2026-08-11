@@ -6,8 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.application.command.AssignRoleCommand;
 import kahoot.clabs.application.dto.UserProfileResponse;
-import kahoot.clabs.application.port.write.UserProjectionPort;
-import kahoot.clabs.application.readmodel.UserReadModels;
+import kahoot.clabs.application.event.UserIntegrationEvent;
+import kahoot.clabs.application.event.UserProjectionSnapshot;
+import kahoot.clabs.application.port.integration.UserEventPublisher;
 import kahoot.clabs.domain.aggregate.Role;
 import kahoot.clabs.domain.aggregate.User;
 import kahoot.clabs.domain.exception.RoleNotFoundException;
@@ -20,15 +21,15 @@ public class AssignRoleUseCase {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final UserProjectionPort userProjectionPort;
+    private final UserEventPublisher userEventPublisher;
 
     public AssignRoleUseCase(
             UserRepository userRepository,
             RoleRepository roleRepository,
-            UserProjectionPort userProjectionPort) {
+            UserEventPublisher userEventPublisher) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.userProjectionPort = userProjectionPort;
+        this.userEventPublisher = userEventPublisher;
     }
 
     @Transactional
@@ -40,7 +41,7 @@ public class AssignRoleUseCase {
 
         user.changeRole(role.getId());
         User saved = userRepository.save(user);
-        userProjectionPort.save(UserReadModels.from(saved, role));
+        userEventPublisher.publish(UserIntegrationEvent.roleAssigned(UserProjectionSnapshot.from(saved, role)));
         return UserProfileResponse.from(saved);
     }
 }
