@@ -1,0 +1,128 @@
+quarkus:
+    application:
+      name: identity-service
+    http:
+      port: ${HTTP_PORT}
+    datasource:
+      db-kind: postgresql
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      jdbc:
+        url: ${DB_URL}
+      devservices:
+        enabled: false
+
+    # Flyway — shared kahoot_db uses one history table; migrations are V1–V4 across services
+    flyway:
+      migrate-at-start: true
+      locations: classpath:db/migration
+      table: history
+      baseline-on-migrate: true
+      out-of-order: true
+      ignore-missing-migrations: true
+
+    # Hibernate validates schema created by Flyway (never create/drop)
+    hibernate-orm:
+      schema-management:
+        strategy: validate
+      log:
+        sql: ${HIBERNATE_LOG_SQL}
+
+    # MongoDB — temporary shared local read DB (later: identity_read_db)
+    mongodb:
+      connection-string: ${MONGO_URI}
+      database: ${MONGO_DATABASE}
+      uuid-representation: standard
+      devservices:
+        enabled: false
+    kafka:
+      devservices:
+        enabled: false
+    smallrye-openapi:
+      path: /q/openapi
+    swagger-ui:
+      always-include: true
+      path: /swagger-ui
+  
+  # Kafka (Redpanda)
+  kafka:
+    bootstrap:
+      servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  
+  mp:
+    messaging:
+      connector:
+        smallrye-kafka:
+          bootstrap:
+            servers: ${kafka.bootstrap.servers}
+      outgoing:
+        user-events-out:
+          connector: smallrye-kafka
+          topic: identity.user.events
+          key:
+            serializer: org.apache.kafka.common.serialization.StringSerializer
+          value:
+            serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+      incoming:
+        user-events-in:
+          connector: smallrye-kafka
+          topic: identity.user.events
+          group:
+            id: identity-user-projection
+          auto:
+            offset:
+              reset: earliest
+          enable:
+            auto:
+              commit: false
+          key:
+            deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value:
+            deserializer: kahoot.clabs.infrastructure.messaging.kafka.UserIntegrationEventDeserializer
+    openapi:
+      extensions:
+        smallrye:
+          info:
+            title: Identity Service API
+            version: 1.0.0
+            description: Auth, users, roles and permissions
+  
+  app:
+    storage: ${APP_STORAGE}
+  
+  storage:
+    s3:
+      key-id: ${AWS_ACCESS_KEY_ID}
+      bucket: ${AWS_S3_BUCKET}
+      region: ${AWS_REGION}
+      public-base-url: ${AWS_S3_PUBLIC_BASE_URL}
+    azure:
+      connection-string: "${AZURE_STORAGE_CONNECTION_STRING}"
+      container: ${AZURE_STORAGE_CONTAINER}
+      account-name: ${AZURE_STORAGE_ACCOUNT}
+      public-base-url: ${AZURE_STORAGE_PUBLIC_BASE_URL}
+  
+  "%dev":
+    quarkus:
+      log:
+        category:
+          "kahoot.clabs":
+            level: DEBUG
+  
+  "%test":
+    quarkus:
+      http:
+        test-port: 0
+      datasource:
+        devservices:
+          enabled: false
+      mongodb:
+        devservices:
+          enabled: false
+      kafka:
+        devservices:
+          enabled: false
+      hibernate-orm:
+        schema-management:
+          strategy: validate
+  
