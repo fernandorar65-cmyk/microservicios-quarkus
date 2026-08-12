@@ -7,8 +7,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import kahoot.clabs.application.port.write.OrganizationProjectionPort;
-import kahoot.clabs.application.readmodel.OrganizationReadModels;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.entity.OrganizationMember;
 import kahoot.clabs.domain.repository.OrganizationRepository;
@@ -28,9 +26,6 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
     @Inject
     OrganizationMemberPanacheRepository memberRepository;
 
-    @Inject
-    OrganizationProjectionPort organizationProjectionPort;
-
     @Override
     @Transactional
     public Organization save(Organization organization) {
@@ -38,9 +33,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
         OrganizationJpaEntity saved = organizationRepository.getEntityManager().merge(entity);
         List<OrganizationMember> members = organization.getMembers();
         syncMembers(saved, members);
-        Organization aggregate = OrganizationPersistenceMapper.toDomain(saved, members);
-        organizationProjectionPort.save(OrganizationReadModels.from(aggregate));
-        return aggregate;
+        return OrganizationPersistenceMapper.toDomain(saved, members);
     }
 
     @Override
@@ -63,7 +56,6 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
     public void delete(Organization organization) {
         memberRepository.deleteByOrganizationId(organization.getId());
         organizationRepository.deleteById(organization.getId());
-        organizationProjectionPort.deleteById(organization.getId());
     }
 
     private Organization toAggregate(OrganizationJpaEntity entity) {

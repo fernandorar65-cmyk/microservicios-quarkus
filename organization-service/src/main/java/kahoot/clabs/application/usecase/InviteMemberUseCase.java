@@ -8,6 +8,9 @@ import jakarta.transaction.Transactional;
 
 import kahoot.clabs.application.command.InviteMemberCommand;
 import kahoot.clabs.application.dto.OrganizationResponse;
+import kahoot.clabs.application.event.OrganizationIntegrationEvent;
+import kahoot.clabs.application.event.OrganizationProjectionSnapshot;
+import kahoot.clabs.application.port.integration.OrganizationEventPublisher;
 import kahoot.clabs.application.port.integration.UserDirectoryPort;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.exception.OrganizationNotFoundException;
@@ -23,6 +26,9 @@ public class InviteMemberUseCase {
     @Inject
     UserDirectoryPort userDirectoryPort;
 
+    @Inject
+    OrganizationEventPublisher organizationEventPublisher;
+
     @Transactional
     public OrganizationResponse execute(UUID organizationId, InviteMemberCommand command) {
         Organization organization = organizationRepository.findById(organizationId)
@@ -34,6 +40,9 @@ public class InviteMemberUseCase {
                 .orElseThrow(() -> new DomainException("Role not found: " + command.roleType()));
 
         organization.inviteMember(userId, roleId);
-        return OrganizationResponse.from(organizationRepository.save(organization));
+        Organization saved = organizationRepository.save(organization);
+        organizationEventPublisher.publish(
+                OrganizationIntegrationEvent.memberInvited(OrganizationProjectionSnapshot.from(saved)));
+        return OrganizationResponse.from(saved);
     }
 }

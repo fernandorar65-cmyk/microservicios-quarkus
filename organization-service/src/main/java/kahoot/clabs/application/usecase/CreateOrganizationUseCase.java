@@ -8,7 +8,10 @@ import jakarta.transaction.Transactional;
 
 import kahoot.clabs.application.command.CreateOrganizationCommand;
 import kahoot.clabs.application.dto.OrganizationResponse;
+import kahoot.clabs.application.event.OrganizationIntegrationEvent;
+import kahoot.clabs.application.event.OrganizationProjectionSnapshot;
 import kahoot.clabs.application.port.blob.AssetsStoragePort;
+import kahoot.clabs.application.port.integration.OrganizationEventPublisher;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.exception.OrganizationSlugAlreadyTakenException;
 import kahoot.clabs.domain.repository.OrganizationRepository;
@@ -25,6 +28,9 @@ public class CreateOrganizationUseCase {
 
     @Inject
     AssetsStoragePort assetsStoragePort;
+
+    @Inject
+    OrganizationEventPublisher organizationEventPublisher;
 
     @Transactional
     public OrganizationResponse execute(
@@ -53,7 +59,10 @@ public class CreateOrganizationUseCase {
             organization.changeLogo(logoUrl);
         }
 
-        return OrganizationResponse.from(organizationRepository.save(organization));
+        Organization saved = organizationRepository.save(organization);
+        organizationEventPublisher.publish(
+                OrganizationIntegrationEvent.organizationCreated(OrganizationProjectionSnapshot.from(saved)));
+        return OrganizationResponse.from(saved);
     }
 
     private void validateImage(byte[] content, String contentType) {
