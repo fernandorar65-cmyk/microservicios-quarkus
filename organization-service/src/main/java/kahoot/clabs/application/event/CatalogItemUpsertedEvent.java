@@ -3,9 +3,6 @@ package kahoot.clabs.application.event;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Kafka envelope for organization catalog upserts on organization.events.
- */
 public record CatalogItemUpsertedEvent(
         UUID eventId,
         String eventType,

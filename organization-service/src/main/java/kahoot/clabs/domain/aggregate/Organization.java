@@ -14,10 +14,6 @@ import kahoot.clabs.domain.valueobject.OrganizationStatus;
 import kahoot.clabs.domain.shared.AggregateRoot;
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Tenant of the platform. Members are child entities: they are always added, changed
- * or removed through this aggregate root.
- */
 public class Organization extends AggregateRoot {
 
     private static final String DEFAULT_TIMEZONE = "America/Bogota";

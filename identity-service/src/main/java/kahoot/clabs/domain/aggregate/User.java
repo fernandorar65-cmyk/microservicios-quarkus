@@ -16,10 +16,6 @@ import kahoot.clabs.domain.valueobject.UserStatus;
 import kahoot.clabs.domain.shared.AggregateRoot;
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Identity of a person in the platform. This aggregate knows nothing about organizations:
- * membership lives in the organization bounded context.
- */
 public class User extends AggregateRoot {
 
     private UUID roleId;
@@ -47,9 +43,7 @@ public class User extends AggregateRoot {
         this.status = UserStatus.ACTIVE;
     }
 
-    /**
-     * Creates a new user with an already-hashed password (Application hashes via PasswordHasher).
-     */
+
     public static User create(
             String email,
             String firstName,
@@ -114,9 +108,7 @@ public class User extends AggregateRoot {
         touch();
     }
 
-    /**
-     * Adds or replaces an image of the given type (e.g. profile, cover, banner).
-     */
+
     public UserImages upsertImage(String url, String type, String alt, String slug) {
         Optional<UserImages> existing = findImageByType(type);
         if (existing.isPresent()) {

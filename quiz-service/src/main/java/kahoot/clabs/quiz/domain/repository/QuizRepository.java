@@ -5,10 +5,6 @@ import java.util.UUID;
 
 import kahoot.clabs.quiz.domain.aggregate.Quiz;
 
-/**
- * Write-side port for the Quiz aggregate (Postgres/JPA).
- * Listings and search belong on the query/read ports.
- */
 public interface QuizRepository {
 
     Quiz save(Quiz quiz);

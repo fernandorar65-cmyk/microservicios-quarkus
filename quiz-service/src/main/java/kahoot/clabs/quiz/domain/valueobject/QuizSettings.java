@@ -1,8 +1,5 @@
 package kahoot.clabs.quiz.domain.valueobject;
 
-/**
- * Immutable value object describing quiz playback settings.
- */
 public final class QuizSettings {
 
     private final boolean randomQuestions;

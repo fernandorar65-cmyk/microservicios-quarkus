@@ -3,11 +3,6 @@ package kahoot.clabs.domain.valueobject;
 import java.time.LocalDate;
 import java.util.Objects;
 
-/**
- * Personal profile data owned by the User aggregate.
- * Department and job title belong to the organization context (membership).
- * Images live as {@code UserImages} children of User.
- */
 public final class UserProfile {
 
     private final String phoneNumber;

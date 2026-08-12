@@ -5,10 +5,6 @@ import java.util.UUID;
 
 import kahoot.clabs.quiz.domain.shared.DomainException;
 
-/**
- * Association between a quiz and a category. Its identity is the pair of ids,
- * matching the composite key of the persistence table.
- */
 public final class QuizCategory {
 
     private final UUID quizId;

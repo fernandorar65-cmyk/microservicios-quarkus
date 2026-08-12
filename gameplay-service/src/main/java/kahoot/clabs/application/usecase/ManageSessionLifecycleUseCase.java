@@ -37,9 +37,7 @@ public class ManageSessionLifecycleUseCase {
     @Inject
     SessionLifecycleWriter writer;
 
-    /**
-     * If questions are empty, load Mongo snapshot outside JPA TX, then persist start in Postgres.
-     */
+
     public GameSessionResponse start(UUID organizationId, UUID sessionId, HostActionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());

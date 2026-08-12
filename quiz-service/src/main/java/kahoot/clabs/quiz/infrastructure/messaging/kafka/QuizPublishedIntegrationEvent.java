@@ -4,10 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Versionable Kafka contract for quiz.events / QuizPublished.
- * Intentionally separate from the domain {@code QuizPublishedEvent}.
- */
 public record QuizPublishedIntegrationEvent(
         UUID eventId,
         String eventType,

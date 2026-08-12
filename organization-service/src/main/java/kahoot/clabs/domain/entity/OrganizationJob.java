@@ -5,10 +5,6 @@ import java.util.UUID;
 import kahoot.clabs.domain.shared.BaseEntity;
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Catalog entry for job titles within the organization context.
- * Aligned with persistence table {@code organization_jobs}.
- */
 public class OrganizationJob extends BaseEntity {
 
     private static final int NAME_MAX = 150;

@@ -35,7 +35,7 @@ public class SessionAnswerOptionJpaEntity {
     @JoinColumn(name = "session_question_id", nullable = false)
     private SessionQuestionJpaEntity sessionQuestion;
 
-    /** Conceptual reference to quiz-service answer option. No FK. */
+
     @Column(name = "source_answer_option_id")
     private UUID sourceAnswerOptionId;
 

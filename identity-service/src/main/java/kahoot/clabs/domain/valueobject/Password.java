@@ -4,11 +4,6 @@ import java.util.Objects;
 
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Stores a password secret already prepared for persistence.
- * Raw password validation happens via {@link #assertValidRaw(String)}.
- * Hashing belongs to Application/Infrastructure through a hasher port.
- */
 public final class Password {
 
     private static final int MIN_LENGTH = 8;
@@ -28,10 +23,6 @@ public final class Password {
         }
     }
 
-    /**
-     * Temporary factory until Application provides a hashed value via a PasswordHasher.
-     * Validates raw password and wraps it; do not use this in production paths.
-     */
     public static Password fromRawTemporarily(String rawPassword) {
         assertValidRaw(rawPassword);
         return new Password(rawPassword);

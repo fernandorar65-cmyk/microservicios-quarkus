@@ -18,10 +18,6 @@ import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;
 
-/**
- * Temporary shared-DB lookups for local seed (same kahoot_db as identity/org/quiz).
- * Seed reads must use Postgres/JDBC here — never Mongo inside a JPA {@code @Transactional}.
- */
 @ApplicationScoped
 public class SharedDbSeedLookup {
 
@@ -65,12 +61,7 @@ public class SharedDbSeedLookup {
         }
     }
 
-    /**
-     * SEED / MIGRATION ONLY — builds freeze payload from Postgres quiz write model.
-     * Do not call Mongo from seed: standalone Mongo + active JTA causes
-     * "Transaction numbers are only allowed on a replica set member or mongos".
-     * Runtime playable snapshots still come from Kafka → Mongo projection.
-     */
+
     public Optional<PublishedQuizSnapshot> loadPublishedQuizSnapshotForSeed(
             UUID organizationId, UUID quizId) {
         if (organizationId == null || quizId == null) {

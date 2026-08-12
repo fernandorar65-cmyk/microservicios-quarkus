@@ -40,7 +40,7 @@ public class SessionQuestionJpaEntity {
     @JoinColumn(name = "session_id", nullable = false)
     private GameSessionJpaEntity session;
 
-    /** Conceptual reference to quiz-service question. No FK. */
+
     @Column(name = "source_question_id")
     private UUID sourceQuestionId;
 

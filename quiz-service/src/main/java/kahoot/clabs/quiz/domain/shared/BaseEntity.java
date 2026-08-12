@@ -3,9 +3,6 @@ package kahoot.clabs.quiz.domain.shared;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Base class for every domain entity. Identity is given by the id, never by attribute values.
- */
 public abstract class BaseEntity {
 
     private final UUID id;

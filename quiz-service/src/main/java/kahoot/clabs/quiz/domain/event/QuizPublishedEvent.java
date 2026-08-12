@@ -4,11 +4,6 @@ import java.util.UUID;
 
 import kahoot.clabs.quiz.domain.shared.DomainEvent;
 
-/**
- * Domain fact: a quiz was published.
- * Registered by {@code Quiz.publish()}. Published after successful write-side save.
- * Does not drive Mongo projection (that uses {@code QuizReadModelUpsertedEvent}).
- */
 public class QuizPublishedEvent extends DomainEvent {
 
     private final UUID quizId;

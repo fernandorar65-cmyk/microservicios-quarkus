@@ -13,10 +13,6 @@ import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.PlayableQuizSnapshotMapper;
 import kahoot.clabs.infrastructure.persistence.mongo.repository.PlayableQuizSnapshotMongoRepository;
 
-/**
- * Mongo playable-quiz read/write adapter.
- * {@link TxType#NOT_SUPPORTED} suspends any active JPA/JTA TX — standalone Mongo rejects txn numbers.
- */
 @ApplicationScoped
 public class PlayableQuizSnapshotMongoAdapter implements QuizSnapshotPort, PlayableQuizSnapshotPort {
 

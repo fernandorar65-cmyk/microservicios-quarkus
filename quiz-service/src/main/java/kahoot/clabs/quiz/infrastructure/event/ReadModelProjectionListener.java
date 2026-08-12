@@ -13,9 +13,6 @@ import kahoot.clabs.quiz.application.event.QuizReadModelIntegrationEvent;
 import kahoot.clabs.quiz.application.event.QuizReadModelUpsertedEvent;
 import kahoot.clabs.quiz.application.port.integration.QuizReadModelEventPublisher;
 
-/**
- * After JPA commit, publishes Kafka events for Mongo projection (never writes Mongo here).
- */
 @ApplicationScoped
 public class ReadModelProjectionListener {
 

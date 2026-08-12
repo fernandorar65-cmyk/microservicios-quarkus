@@ -3,9 +3,6 @@ package kahoot.clabs.application.event;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Kafka envelope for role upserts on identity.user.events.
- */
 public record RoleUpsertedEvent(
         UUID eventId,
         String eventType,

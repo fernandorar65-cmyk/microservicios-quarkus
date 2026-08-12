@@ -3,10 +3,6 @@ package kahoot.clabs.application.snapshot;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Cross-context snapshot of a published quiz for gameplay freeze.
- * Owned by quiz application; does not expose Quiz aggregates.
- */
 public record PublishedQuizSnapshot(
         UUID quizId,
         UUID organizationId,

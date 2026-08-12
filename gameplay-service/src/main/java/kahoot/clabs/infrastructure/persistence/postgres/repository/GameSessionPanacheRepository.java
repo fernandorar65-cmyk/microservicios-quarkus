@@ -10,7 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.infrastructure.persistence.postgres.entity.GameSessionJpaEntity;
 import kahoot.clabs.infrastructure.persistence.postgres.entity.SessionQuestionJpaEntity;
 
-
 @ApplicationScoped
 public class GameSessionPanacheRepository implements PanacheRepositoryBase<GameSessionJpaEntity, UUID> {
 

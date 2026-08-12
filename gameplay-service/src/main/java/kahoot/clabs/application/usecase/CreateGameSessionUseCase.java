@@ -30,11 +30,7 @@ public class CreateGameSessionUseCase {
     @Inject
     CreateGameSessionWriter writer;
 
-    /**
-     * 1) Read playable quiz from Mongo (outside JPA TX)
-     * 2) Persist session in Postgres (@Transactional writer)
-     * 3) Writer publishes Kafka for Mongo session projection
-     */
+
     public GameSessionResponse execute(UUID organizationId, CreateGameSessionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());

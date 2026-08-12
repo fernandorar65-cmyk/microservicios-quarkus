@@ -16,9 +16,6 @@ import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationJobM
 import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationMemberStatusMongoRepository;
 import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationStatusMongoRepository;
 
-/**
- * Mongo catalog projection. Always outside JPA/JTA ({@link TxType#NOT_SUPPORTED}).
- */
 @ApplicationScoped
 public class OrganizationCatalogProjectionAdapter {
 
@@ -77,7 +74,7 @@ public class OrganizationCatalogProjectionAdapter {
                 jobMongoRepository.persistOrUpdate(document);
             }
             default -> {
-                // unknown kind ignored by caller logging
+
             }
         }
     }

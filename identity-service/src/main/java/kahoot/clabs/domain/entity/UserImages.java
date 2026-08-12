@@ -6,10 +6,6 @@ import java.util.UUID;
 import kahoot.clabs.domain.shared.AuditableEntity;
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Image attached to a user (profile, cover, banner, etc.).
- * Child entity of the {@code User} aggregate — mutate via the root.
- */
 public class UserImages extends AuditableEntity {
 
     public static final String TYPE_PROFILE = "profile";

@@ -12,10 +12,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import kahoot.clabs.application.port.integration.UserDirectoryPort;
 
-/**
- * Temporary shared-DB lookup against identity tables in kahoot_db.
- * Replace with REST client when databases are split per service.
- */
 @ApplicationScoped
 public class UseDirectoryAdapter implements UserDirectoryPort {
 

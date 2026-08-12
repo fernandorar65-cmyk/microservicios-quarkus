@@ -13,9 +13,6 @@ import kahoot.clabs.domain.entity.SessionAnswerOption;
 import kahoot.clabs.domain.entity.SessionPlayer;
 import kahoot.clabs.domain.entity.SessionQuestion;
 
-/**
- * Snapshot of a game session for Mongo read-model upsert (no secrets).
- */
 public record GameSessionProjectionSnapshot(
         UUID sessionId,
         UUID organizationId,

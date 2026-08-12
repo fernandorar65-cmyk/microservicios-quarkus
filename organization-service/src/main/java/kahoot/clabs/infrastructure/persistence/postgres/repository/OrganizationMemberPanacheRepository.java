@@ -8,14 +8,11 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.infrastructure.persistence.postgres.entity.OrganizationMemberJpaEntity;
 
-/**
- * Write-side helpers for Organization aggregate persistence (not query API).
- */
 @ApplicationScoped
 public class OrganizationMemberPanacheRepository
         implements PanacheRepositoryBase<OrganizationMemberJpaEntity, UUID> {
 
-    /** Load members when rehydrating the aggregate for commands. */
+
     public List<OrganizationMemberJpaEntity> findByOrganizationId(UUID organizationId) {
         return list("organization.id", organizationId);
     }

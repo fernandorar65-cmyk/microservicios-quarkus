@@ -15,9 +15,6 @@ import kahoot.clabs.application.port.write.OrganizationProjectionPort;
 import kahoot.clabs.application.readmodel.OrganizationReadModels;
 import kahoot.clabs.infrastructure.persistence.mongo.adapter.OrganizationCatalogProjectionAdapter;
 
-/**
- * Projects organization / catalog read models in Mongo outside any JPA write transaction.
- */
 @ApplicationScoped
 public class OrganizationIntegrationEventConsumer {
 

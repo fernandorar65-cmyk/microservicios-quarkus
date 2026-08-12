@@ -9,9 +9,6 @@ import kahoot.clabs.quiz.application.event.QuizReadModelIntegrationEvent;
 import kahoot.clabs.quiz.application.port.write.CategoryProjectionPort;
 import kahoot.clabs.quiz.application.port.write.QuizProjectionPort;
 
-/**
- * Projects quiz/category Mongo read models outside the JPA write transaction.
- */
 @ApplicationScoped
 public class QuizReadModelIntegrationEventConsumer {
 

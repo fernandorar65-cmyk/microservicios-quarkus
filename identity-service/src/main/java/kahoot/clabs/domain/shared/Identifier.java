@@ -3,10 +3,6 @@ package kahoot.clabs.domain.shared;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Base class for typed identifiers (UserId, QuizId, ...) so that ids of different
- * aggregates cannot be interchanged by mistake.
- */
 public abstract class Identifier {
 
     private final UUID value;

@@ -5,9 +5,6 @@ import java.util.UUID;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizReadModel;
 
-/**
- * Kafka envelope for quiz/category read-model projection (quiz.read.events).
- */
 public record QuizReadModelIntegrationEvent(
         UUID eventId,
         String eventType,

@@ -36,11 +36,11 @@ public class QuizJpaEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    /** External reference to organization-service. No FK. */
+
     @Column(name = "organization_id", nullable = false, updatable = false)
     private UUID organizationId;
 
-    /** External reference to identity-service. No FK. */
+
     @Column(name = "created_by", nullable = false, updatable = false)
     private UUID createdBy;
 

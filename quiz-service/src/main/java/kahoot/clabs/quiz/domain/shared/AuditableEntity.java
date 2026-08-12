@@ -3,9 +3,6 @@ package kahoot.clabs.quiz.domain.shared;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Entity that tracks creation and modification timestamps.
- */
 public abstract class AuditableEntity extends BaseEntity {
 
     private final LocalDateTime createdAt;

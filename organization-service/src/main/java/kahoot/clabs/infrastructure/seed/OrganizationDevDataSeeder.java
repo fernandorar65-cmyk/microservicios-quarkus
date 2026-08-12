@@ -33,9 +33,6 @@ import kahoot.clabs.infrastructure.persistence.postgres.repository.OrganizationJ
 import kahoot.clabs.infrastructure.persistence.postgres.repository.OrganizationMemberStatusCatalogPanacheRepository;
 import kahoot.clabs.infrastructure.persistence.postgres.repository.OrganizationStatusCatalogPanacheRepository;
 
-/**
- * Dev seeder: Postgres inside JTA, then Kafka. Mongo only via consumers.
- */
 @ApplicationScoped
 public class OrganizationDevDataSeeder {
 

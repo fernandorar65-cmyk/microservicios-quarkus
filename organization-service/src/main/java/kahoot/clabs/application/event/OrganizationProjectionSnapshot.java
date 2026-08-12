@@ -9,9 +9,6 @@ import java.util.UUID;
 import kahoot.clabs.domain.aggregate.Organization;
 import kahoot.clabs.domain.entity.OrganizationMember;
 
-/**
- * Snapshot of organization data needed to upsert the Mongo read model.
- */
 public record OrganizationProjectionSnapshot(
         UUID organizationId,
         String name,

@@ -2,9 +2,6 @@ package kahoot.clabs.application.event;
 
 import java.util.UUID;
 
-/**
- * Catalog entry payload for organization.events (statuses, departments, jobs).
- */
 public record CatalogItemProjectionSnapshot(
         UUID id,
         String name,

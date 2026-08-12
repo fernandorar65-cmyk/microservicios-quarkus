@@ -5,13 +5,6 @@ import java.util.UUID;
 import kahoot.clabs.domain.shared.BaseEntity;
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * Catalog entry for organization lifecycle statuses (reference data).
- * Aligned with persistence table {@code organization_statuses}.
- *
- * <p>Distinct from the enum value object
- * {@link kahoot.clabs.domain.valueobject.OrganizationStatus}.
- */
 public class OrganizationStatusCatalog extends BaseEntity {
 
     private static final int NAME_MAX = 150;

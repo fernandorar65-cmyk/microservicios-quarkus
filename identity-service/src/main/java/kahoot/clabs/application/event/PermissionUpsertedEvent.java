@@ -3,9 +3,6 @@ package kahoot.clabs.application.event;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Kafka envelope for permission upserts on identity.user.events.
- */
 public record PermissionUpsertedEvent(
         UUID eventId,
         String eventType,

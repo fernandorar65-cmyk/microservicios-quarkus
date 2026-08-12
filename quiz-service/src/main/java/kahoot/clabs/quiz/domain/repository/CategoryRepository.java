@@ -5,10 +5,6 @@ import java.util.UUID;
 
 import kahoot.clabs.quiz.domain.entity.Category;
 
-/**
- * Write-side port for Category (PostgreSQL).
- * List/get category queries belong on Mongo {@code CategoryReadPort}.
- */
 public interface CategoryRepository {
 
     Category save(Category category);

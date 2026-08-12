@@ -5,9 +5,6 @@ import java.util.UUID;
 import kahoot.clabs.quiz.domain.shared.BaseEntity;
 import kahoot.clabs.quiz.domain.shared.DomainException;
 
-/**
- * Classification of quizzes inside an organization.
- */
 public class Category extends BaseEntity {
 
     private final UUID organizationId;

@@ -12,9 +12,6 @@ import kahoot.clabs.domain.entity.Permission;
 import kahoot.clabs.domain.entity.UserImages;
 import kahoot.clabs.domain.valueobject.UserProfile;
 
-/**
- * Snapshot of user data needed to upsert the Mongo read model (no secrets).
- */
 public record UserProjectionSnapshot(
         java.util.UUID userId,
         String email,

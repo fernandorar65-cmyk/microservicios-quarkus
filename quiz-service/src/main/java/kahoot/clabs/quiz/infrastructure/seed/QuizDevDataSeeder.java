@@ -19,10 +19,6 @@ import kahoot.clabs.quiz.domain.valueobject.QuestionType;
 import kahoot.clabs.quiz.infrastructure.persistence.postgres.mapper.CategoryMapper;
 import kahoot.clabs.quiz.infrastructure.persistence.postgres.repository.CategoryPanacheRepository;
 
-/**
- * Dev seeder: Postgres inside JTA. Mongo + gameplay snapshot via Kafka after commit
- * ({@code quiz.read.events} and {@code quiz.events}).
- */
 @ApplicationScoped
 public class QuizDevDataSeeder {
 

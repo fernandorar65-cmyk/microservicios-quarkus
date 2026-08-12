@@ -41,7 +41,7 @@ public class SessionPlayerJpaEntity {
     @JoinColumn(name = "session_id", nullable = false)
     private GameSessionJpaEntity session;
 
-    /** External reference to identity-service. No FK. */
+
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
 

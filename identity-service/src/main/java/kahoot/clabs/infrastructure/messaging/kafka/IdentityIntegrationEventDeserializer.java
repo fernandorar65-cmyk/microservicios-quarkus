@@ -11,7 +11,6 @@ public class IdentityIntegrationEventDeserializer extends ObjectMapperDeserializ
         super(JsonNode.class);
     }
 
-    /** Used by Jackson ObjectMapperDeserializer; keep no-arg constructor above. */
     @SuppressWarnings("unused")
     private IdentityIntegrationEventDeserializer(ObjectMapper mapper) {
         super(JsonNode.class);

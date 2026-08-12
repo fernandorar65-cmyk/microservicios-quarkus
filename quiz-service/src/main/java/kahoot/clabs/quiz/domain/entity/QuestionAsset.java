@@ -7,9 +7,6 @@ import kahoot.clabs.quiz.domain.valueobject.MediaUrl;
 import kahoot.clabs.quiz.domain.shared.BaseEntity;
 import kahoot.clabs.quiz.domain.shared.DomainException;
 
-/**
- * Media attached to a question (image, video, audio, ...).
- */
 public class QuestionAsset extends BaseEntity {
 
     private UUID questionId;

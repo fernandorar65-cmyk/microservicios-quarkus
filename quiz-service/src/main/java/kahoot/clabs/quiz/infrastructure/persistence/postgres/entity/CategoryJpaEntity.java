@@ -39,7 +39,7 @@ public class CategoryJpaEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    /** External reference to organization-service. No FK. */
+
     @Column(name = "organization_id", nullable = false, updatable = false)
     private UUID organizationId;
 

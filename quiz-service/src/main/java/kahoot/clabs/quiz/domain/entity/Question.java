@@ -14,9 +14,6 @@ import kahoot.clabs.quiz.domain.valueobject.TimeLimit;
 import kahoot.clabs.quiz.domain.shared.BaseEntity;
 import kahoot.clabs.quiz.domain.shared.DomainException;
 
-/**
- * Child entity of the Quiz aggregate. Always modified through {@code Quiz}.
- */
 public class Question extends BaseEntity {
 
     private UUID quizId;
@@ -191,7 +188,7 @@ public class Question extends BaseEntity {
 
         switch (type) {
             case SHORT_ANSWER -> {
-                // Free text; options optional
+
             }
             case TRUE_FALSE -> {
                 if (options.size() != 2) {

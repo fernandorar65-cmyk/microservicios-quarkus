@@ -40,13 +40,13 @@ public final class Email {
         return Objects.equals(value, email.value);
     }
 
-    // pendiente verficar su uso
+
     @Override
     public int hashCode() {
         return Objects.hash(value);
     }
 
-    // pendiente verficar su uso
+
     @Override
     public String toString() {
         return value;

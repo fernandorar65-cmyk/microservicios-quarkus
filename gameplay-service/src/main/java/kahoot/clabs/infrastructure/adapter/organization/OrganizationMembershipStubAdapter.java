@@ -8,10 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 
-/**
- * Temporary stub until organization REST/Kafka integration exists.
- * In %dev, {@code app.membership.stub.allow-all=true} so seeded sessions are usable via API.
- */
 @ApplicationScoped
 public class OrganizationMembershipStubAdapter implements OrganizationMembershipPort {
 

@@ -8,9 +8,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.infrastructure.persistence.postgres.entity.PermissionJpaEntity;
 
-/**
- * Write-side only. Used to rehydrate Role permissions on commands / seed.
- */
 @ApplicationScoped
 public class PermissionPanacheRepository implements PanacheRepositoryBase<PermissionJpaEntity, UUID> {
 

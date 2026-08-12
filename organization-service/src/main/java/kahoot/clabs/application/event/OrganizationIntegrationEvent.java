@@ -3,10 +3,6 @@ package kahoot.clabs.application.event;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Versionable Kafka envelope for organization.events.
- * Payload is always a projection snapshot.
- */
 public record OrganizationIntegrationEvent(
         UUID eventId,
         String eventType,

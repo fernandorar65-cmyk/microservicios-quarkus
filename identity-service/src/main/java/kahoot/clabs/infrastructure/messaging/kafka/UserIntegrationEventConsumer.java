@@ -21,10 +21,6 @@ import kahoot.clabs.application.readmodel.RolePermissionReadModel;
 import kahoot.clabs.application.readmodel.RoleReadModel;
 import kahoot.clabs.application.readmodel.UserReadModels;
 
-/**
- * Projects identity read models in Mongo. Runs outside the JPA write transaction
- * (Kafka consumer thread) so standalone Mongo is never enlisted in Narayana/JTA.
- */
 @ApplicationScoped
 public class UserIntegrationEventConsumer {
 

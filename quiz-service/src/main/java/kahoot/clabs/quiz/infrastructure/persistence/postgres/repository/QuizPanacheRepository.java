@@ -8,17 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import kahoot.clabs.quiz.infrastructure.persistence.postgres.entity.QuestionJpaEntity;
 import kahoot.clabs.quiz.infrastructure.persistence.postgres.entity.QuizJpaEntity;
 
-/**
- * Write-side only. List/get quiz queries belong on Mongo {@code QuizReadPort}.
- * {@link #findByIdWithDetails} exists solely to rehydrate the aggregate for commands.
- */
 @ApplicationScoped
 public class QuizPanacheRepository implements PanacheRepositoryBase<QuizJpaEntity, UUID> {
 
-    /**
-     * Split fetches avoid Hibernate {@code MultipleBagFetchException}.
-     * Cannot {@code join fetch} two bags in one query ({@code Quiz.questions} + {@code Question.answerOptions}).
-     */
+
     public Optional<QuizJpaEntity> findByIdWithDetails(UUID id) {
         Optional<QuizJpaEntity> quiz = find("""
                 select distinct q
@@ -32,7 +25,7 @@ public class QuizPanacheRepository implements PanacheRepositoryBase<QuizJpaEntit
             return Optional.empty();
         }
 
-        // Hydrate answerOptions on the same persistence-context Question instances
+
         getEntityManager().createQuery("""
                 select distinct qu
                 from QuestionJpaEntity qu

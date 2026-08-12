@@ -9,14 +9,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import kahoot.clabs.infrastructure.persistence.postgres.entity.PlayerAnswerJpaEntity;
 
-/**
- * Write-side helpers for persisting answers with the GameSession aggregate.
- * Leaderboard / answer queries belong on Mongo.
- */
 @ApplicationScoped
 public class PlayerAnswerPanacheRepository implements PanacheRepositoryBase<PlayerAnswerJpaEntity, UUID> {
 
-    /** Load answers when rehydrating a session for commands. */
+
     public List<PlayerAnswerJpaEntity> findBySessionPlayerIdIn(Collection<UUID> playerIds) {
         if (playerIds == null || playerIds.isEmpty()) {
             return List.of();

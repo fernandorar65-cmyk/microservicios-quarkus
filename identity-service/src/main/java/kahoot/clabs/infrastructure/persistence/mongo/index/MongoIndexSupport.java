@@ -33,7 +33,7 @@ final class MongoIndexSupport {
         try {
             collection.createIndex(keys, options != null ? options : new IndexOptions());
         } catch (MongoCommandException ex) {
-            // 85 IndexOptionsConflict / 86 IndexKeySpecsConflict — already exists with another name/options
+
             if (ex.getErrorCode() == 85 || ex.getErrorCode() == 86) {
                 LOG.warnf(
                         "Skipping Mongo index on %s (already exists): %s",

@@ -8,9 +8,6 @@ import kahoot.clabs.quiz.application.usecase.PublishQuizIntegrationUseCase;
 import kahoot.clabs.quiz.domain.event.QuizPublishedEvent;
 import kahoot.clabs.quiz.domain.shared.DomainEvent;
 
-/**
- * After a successful write-side commit, maps {@link QuizPublishedEvent} to the Kafka integration contract.
- */
 @ApplicationScoped
 public class QuizPublishedIntegrationListener {
 

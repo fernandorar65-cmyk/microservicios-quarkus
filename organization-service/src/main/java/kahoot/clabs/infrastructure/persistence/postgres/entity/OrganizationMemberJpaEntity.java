@@ -40,11 +40,11 @@ public class OrganizationMemberJpaEntity {
     @JoinColumn(name = "organization_id", nullable = false)
     private OrganizationJpaEntity organization;
 
-    /** External reference to identity-service user. No FK. */
+
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;
 
-    /** External reference to identity-service role. No FK. */
+
     @Column(name = "role_id")
     private UUID roleId;
 

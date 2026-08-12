@@ -4,9 +4,6 @@ import java.util.Objects;
 
 import kahoot.clabs.domain.shared.DomainException;
 
-/**
- * URL-friendly identifier of a tenant: lowercase words separated by single hyphens.
- */
 public final class OrganizationSlug {
 
     private static final String SLUG_PATTERN = "^[a-z0-9]+(-[a-z0-9]+)*$";
