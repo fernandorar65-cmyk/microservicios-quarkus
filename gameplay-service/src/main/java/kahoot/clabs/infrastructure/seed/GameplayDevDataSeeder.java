@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import kahoot.clabs.application.event.GameSessionIntegrationEvent;
 import kahoot.clabs.application.event.GameSessionProjectionSnapshot;
 import kahoot.clabs.application.port.integration.GameSessionEventPublisher;
-import kahoot.clabs.application.port.integration.QuizSnapshotPort;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.application.usecase.GameSessionSupport;
 import kahoot.clabs.domain.aggregate.GameSession;
@@ -22,8 +21,12 @@ import kahoot.clabs.domain.valueobject.SessionStatus;
 import kahoot.clabs.infrastructure.persistence.postgres.repository.GameSessionPanacheRepository;
 
 /**
- * Dev seeder: Postgres inside JTA, then Kafka. Mongo only via session-events consumer.
- * Requires identity + organization + quiz seed and a PlayableQuizSnapshot in Mongo (quiz.events).
+ * Dev seeder (gameplay):
+ * <ul>
+ *   <li>Write model seed uses only PostgreSQL (JDBC lookup + JPA) inside {@code @Transactional}</li>
+ *   <li>Mongo session projection via Kafka after commit ({@code gameplay.session.events})</li>
+ * </ul>
+ * Never call {@code QuizSnapshotPort} / Mongo from {@link #seedPostgres()}.
  */
 @ApplicationScoped
 public class GameplayDevDataSeeder {
@@ -34,23 +37,25 @@ public class GameplayDevDataSeeder {
     private static final String OWNER_EMAIL = "owner@kahoot-clabs.local";
     private static final String QUIZ_TITLE = "Java Basics";
 
-    @Inject
-    SharedDbSeedLookup sharedDbSeedLookup;
-
-    @Inject
-    QuizSnapshotPort quizSnapshotPort;
-
-    @Inject
-    GameSessionRepository gameSessionRepository;
-
-    @Inject
-    GameSessionPanacheRepository gameSessionPanacheRepository;
-
-    @Inject
-    GameSessionEventPublisher gameSessionEventPublisher;
+    private final SharedDbSeedLookup sharedDbSeedLookup;
+    private final GameSessionRepository gameSessionRepository;
+    private final GameSessionPanacheRepository gameSessionPanacheRepository;
+    private final GameSessionEventPublisher gameSessionEventPublisher;
 
     @ConfigProperty(name = "app.seed.enabled", defaultValue = "false")
     boolean seedEnabled;
+
+    @Inject
+    public GameplayDevDataSeeder(
+            SharedDbSeedLookup sharedDbSeedLookup,
+            GameSessionRepository gameSessionRepository,
+            GameSessionPanacheRepository gameSessionPanacheRepository,
+            GameSessionEventPublisher gameSessionEventPublisher) {
+        this.sharedDbSeedLookup = sharedDbSeedLookup;
+        this.gameSessionRepository = gameSessionRepository;
+        this.gameSessionPanacheRepository = gameSessionPanacheRepository;
+        this.gameSessionEventPublisher = gameSessionEventPublisher;
+    }
 
     void onStart(@Observes StartupEvent event) {
         if (!seedEnabled) {
@@ -87,12 +92,11 @@ public class GameplayDevDataSeeder {
             return null;
         }
 
-        PublishedQuizSnapshot snapshot = quizSnapshotPort
-                .findPublishedByOrganizationAndId(organizationId, quizId)
+        PublishedQuizSnapshot snapshot = sharedDbSeedLookup
+                .loadPublishedQuizSnapshotForSeed(organizationId, quizId)
                 .orElse(null);
         if (snapshot == null) {
-            LOG.warn("Skipping gameplay seed: PlayableQuizSnapshot not in Mongo yet. "
-                    + "Wait for quiz.events consumption (restart gameplay after quiz seed).");
+            LOG.warn("Skipping gameplay seed: published quiz/questions not found in Postgres.");
             return null;
         }
 
