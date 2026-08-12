@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.read.UserReadPort;
 import kahoot.clabs.application.readmodel.UserImageReadModel;
 import kahoot.clabs.application.readmodel.UserPermissionReadModel;
@@ -27,11 +29,13 @@ public class UserMongoReadAdapter implements UserReadPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<UserReadModel> findById(UUID id) {
         return userMongoRepository.findByIdOptional(id).map(this::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<UserReadModel> findByEmail(String email) {
         return userMongoRepository.find("email", email).firstResultOptional().map(this::toReadModel);
     }

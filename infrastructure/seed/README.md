@@ -1,28 +1,28 @@
-# Seeds locales (temporales)
+# Seeds locales (dev)
 
-Por ahora:
+Los microservicios Quarkus siembran datos en **arranque** cuando `app.seed.enabled=true`
+(activo por defecto en perfil `%dev`).
 
-- **1 Postgres**: `kahoot_db`
-- **1 Mongo**: `kahoot`
-- Las seeds viven **aquí**, no en los microservicios Quarkus
-- Mongo crea las **mismas 22 colecciones** que las tablas Postgres (`05_mongo.js` + startup de cada servicio)
+Los UUIDs se generan en el dominio (`UUID.randomUUID()`), no están hardcodeados.
 
-Más adelante volverás a separar DB por servicio.
+Cada seeder:
 
-## Orden
+1. Persiste el **write model** en PostgreSQL (dentro de JTA)
+2. Tras el commit publica Kafka
+3. El consumer proyecta Mongo **fuera** de la TX JPA (standalone Mongo no soporta retryable writes / multi-doc TX)
 
-1. Levantar infra:
+## Orden recomendado
+
+1. Infra:
    ```bash
-   cd infrastructure
-   docker compose up -d
+   cd infrastructure && docker compose up -d
    ```
-2. Arrancar los 4 servicios Quarkus (crean tablas con Flyway en `kahoot_db`).
-3. Correr seeds:
-   ```bash
-   cd infrastructure/seed
-   chmod +x seed.sh
-   ./seed.sh
-   ```
+2. Arrancar **identity-service** (roles, permissions, users → `identity.user.events`)
+3. Arrancar **organization-service** (catálogos + org `clabs` → `organization.events`)
+4. Arrancar **quiz-service** (categoría Java + quiz `Java Basics` publicado → `quiz.read.events` + `quiz.events`)
+5. Arrancar **gameplay-service** (sesión LOBBY; necesita el snapshot de `quiz.events` en Mongo)
+
+Si gameplay arranca antes de que exista el snapshot, reinícialo tras el seed de quiz.
 
 ## Credenciales demo
 
@@ -30,13 +30,27 @@ Más adelante volverás a separar DB por servicio.
 |---|---|
 | `admin@kahoot-clabs.local` | `Admin123!` |
 | `owner@kahoot-clabs.local` | `Admin123!` |
+| `rh@kahoot-clabs.local` | `Admin123!` |
 | `member@kahoot-clabs.local` | `Admin123!` |
 
-## Nota sobre volumen Postgres
+Organización demo: slug `clabs`  
+Quiz demo: título `Java Basics`
 
-Si el volumen ya existía con `identity_db` / etc., recrea infra:
+## Flags
 
-```bash
-docker compose down -v
-docker compose up -d
+```properties
+app.seed.enabled=false
+%dev.app.seed.enabled=true
 ```
+
+Desactivar: `APP_SEED_ENABLED=false` o quitar perfil `%dev`.
+
+## SQL legacy
+
+Los scripts `01_identity.sql` … `04_gameplay.sql` con UUIDs fijos quedan **obsoletos**
+frente a los seeders Quarkus. Puedes ignorarlos o borrarlos más adelante.
+
+## Nota DB compartida
+
+En local, organization/quiz/gameplay resuelven users/org vía SQL en `kahoot_db`
+(temporal). Cuando haya DB por servicio, sustituir por REST/ports de integración.

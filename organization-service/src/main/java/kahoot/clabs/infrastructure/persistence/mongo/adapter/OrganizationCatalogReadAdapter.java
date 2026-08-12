@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.application.port.read.OrganizationCatalogReadPort;
 import kahoot.clabs.application.readmodel.CatalogItemReadModel;
@@ -34,6 +36,7 @@ public class OrganizationCatalogReadAdapter implements OrganizationCatalogReadPo
     OrganizationMemberStatusMongoRepository memberStatusRepository;
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<OrganizationCatalogReadModel> findCatalog() {
         OrganizationCatalogReadModel model = new OrganizationCatalogReadModel();
         model.setId("catalog");

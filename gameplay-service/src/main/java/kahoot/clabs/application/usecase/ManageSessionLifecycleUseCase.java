@@ -15,6 +15,7 @@ import kahoot.clabs.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.application.port.integration.QuizSnapshotPort;
 import kahoot.clabs.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.domain.aggregate.GameSession;
+import kahoot.clabs.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.domain.repository.GameSessionRepository;
 import kahoot.clabs.domain.shared.DomainException;
 
@@ -33,25 +34,30 @@ public class ManageSessionLifecycleUseCase {
     @Inject
     GameSessionEventPublisher gameSessionEventPublisher;
 
-    @Transactional
+    @Inject
+    SessionLifecycleWriter writer;
+
+    /**
+     * If questions are empty, load Mongo snapshot outside JPA TX, then persist start in Postgres.
+     */
     public GameSessionResponse start(UUID organizationId, UUID sessionId, HostActionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
+
+        GameSession session = gameSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new GameSessionNotFoundException(sessionId));
+        session.ensureBelongsTo(organizationId);
         session.ensureHost(command.hostUserId());
 
+        PublishedQuizSnapshot snapshot = null;
         if (session.getQuestions().isEmpty()) {
-            PublishedQuizSnapshot snapshot = quizSnapshotPort
+            snapshot = quizSnapshotPort
                     .findPublishedByOrganizationAndId(organizationId, session.getQuizId())
                     .orElseThrow(() -> new DomainException(
                             "Published quiz not found for organization: " + session.getQuizId()));
-            GameSessionSupport.freezeFromSnapshot(session, snapshot);
         }
-        session.start();
-        GameSession saved = gameSessionRepository.save(session);
-        gameSessionEventPublisher.publish(
-                GameSessionIntegrationEvent.sessionStarted(GameSessionProjectionSnapshot.from(saved)));
-        return GameSessionResponse.from(saved);
+
+        return writer.start(organizationId, sessionId, command, snapshot);
     }
 
     @Transactional
@@ -78,5 +84,33 @@ public class ManageSessionLifecycleUseCase {
         gameSessionEventPublisher.publish(
                 GameSessionIntegrationEvent.sessionFinished(GameSessionProjectionSnapshot.from(saved)));
         return GameSessionResponse.from(saved);
+    }
+
+    @ApplicationScoped
+    static class SessionLifecycleWriter {
+
+        @Inject
+        GameSessionRepository gameSessionRepository;
+
+        @Inject
+        GameSessionEventPublisher gameSessionEventPublisher;
+
+        @Transactional
+        public GameSessionResponse start(
+                UUID organizationId,
+                UUID sessionId,
+                HostActionCommand command,
+                PublishedQuizSnapshot snapshotOrNull) {
+            GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
+            session.ensureHost(command.hostUserId());
+            if (snapshotOrNull != null && session.getQuestions().isEmpty()) {
+                GameSessionSupport.freezeFromSnapshot(session, snapshotOrNull);
+            }
+            session.start();
+            GameSession saved = gameSessionRepository.save(session);
+            gameSessionEventPublisher.publish(
+                    GameSessionIntegrationEvent.sessionStarted(GameSessionProjectionSnapshot.from(saved)));
+            return GameSessionResponse.from(saved);
+        }
     }
 }

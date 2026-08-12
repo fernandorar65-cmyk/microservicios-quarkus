@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.quiz.application.port.read.CategoryReadPort;
 import kahoot.clabs.quiz.application.port.write.QuizProjectionPort;
@@ -33,6 +35,7 @@ public class QuizMongoProjectionAdapter implements QuizProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(QuizReadModel readModel) {
         List<CategoryReadModel> knownCategories = loadCategories(readModel.getCategories());
         readModel.setCategories(QuizReadModels.enrichCategories(readModel.getCategories(), knownCategories));
@@ -40,6 +43,7 @@ public class QuizMongoProjectionAdapter implements QuizProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void deleteById(UUID id) {
         quizMongoRepository.deleteById(id);
     }

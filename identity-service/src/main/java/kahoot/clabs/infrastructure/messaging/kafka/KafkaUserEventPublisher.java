@@ -7,6 +7,8 @@ import org.jboss.logging.Logger;
 import io.smallrye.reactive.messaging.kafka.Record;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import kahoot.clabs.application.event.PermissionUpsertedEvent;
+import kahoot.clabs.application.event.RoleUpsertedEvent;
 import kahoot.clabs.application.event.UserIntegrationEvent;
 import kahoot.clabs.application.port.integration.UserEventPublisher;
 
@@ -15,11 +17,10 @@ public class KafkaUserEventPublisher implements UserEventPublisher {
 
     private static final Logger LOG = Logger.getLogger(KafkaUserEventPublisher.class);
 
-    private final Emitter<Record<String, UserIntegrationEvent>> emitter;
+    private final Emitter<Record<String, Object>> emitter;
 
     @Inject
-    public KafkaUserEventPublisher(
-            @Channel("user-events-out") Emitter<Record<String, UserIntegrationEvent>> emitter) {
+    public KafkaUserEventPublisher(@Channel("user-events-out") Emitter<Record<String, Object>> emitter) {
         this.emitter = emitter;
     }
 
@@ -27,6 +28,26 @@ public class KafkaUserEventPublisher implements UserEventPublisher {
     public void publish(UserIntegrationEvent event) {
         LOG.infof(
                 "Publishing %s to identity.user.events userId=%s eventId=%s",
+                event.eventType(),
+                event.aggregateId(),
+                event.eventId());
+        emitter.send(Record.of(event.aggregateId().toString(), event));
+    }
+
+    @Override
+    public void publish(PermissionUpsertedEvent event) {
+        LOG.infof(
+                "Publishing %s to identity.user.events permissionId=%s eventId=%s",
+                event.eventType(),
+                event.aggregateId(),
+                event.eventId());
+        emitter.send(Record.of(event.aggregateId().toString(), event));
+    }
+
+    @Override
+    public void publish(RoleUpsertedEvent event) {
+        LOG.infof(
+                "Publishing %s to identity.user.events roleId=%s eventId=%s",
                 event.eventType(),
                 event.aggregateId(),
                 event.eventId());
