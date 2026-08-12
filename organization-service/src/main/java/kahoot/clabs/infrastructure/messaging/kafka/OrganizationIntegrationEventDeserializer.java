@@ -1,12 +1,12 @@
 package kahoot.clabs.infrastructure.messaging.kafka;
 
-import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
-import kahoot.clabs.application.event.OrganizationIntegrationEvent;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public class OrganizationIntegrationEventDeserializer
-        extends ObjectMapperDeserializer<OrganizationIntegrationEvent> {
+import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
+
+public class OrganizationIntegrationEventDeserializer extends ObjectMapperDeserializer<JsonNode> {
 
     public OrganizationIntegrationEventDeserializer() {
-        super(OrganizationIntegrationEvent.class);
+        super(JsonNode.class);
     }
 }

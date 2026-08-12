@@ -1,4 +1,4 @@
-package kahoot.clabs.infrastructure.adapter;
+package kahoot.clabs.infrastructure.seed;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,31 +10,42 @@ import javax.sql.DataSource;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import kahoot.clabs.application.port.integration.UserDirectoryPort;
 
 /**
- * Temporary shared-DB lookup against identity tables in kahoot_db.
- * Replace with REST client when databases are split per service.
+ * Temporary shared-DB lookups for local seed (same kahoot_db as identity/org/quiz).
  */
 @ApplicationScoped
-public class UseDirectoryAdapter implements UserDirectoryPort {
+public class SharedDbSeedLookup {
 
     private final DataSource dataSource;
 
     @Inject
-    public UseDirectoryAdapter(DataSource dataSource) {
+    public SharedDbSeedLookup(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    @Override
+    public Optional<UUID> findOrganizationIdBySlug(String slug) {
+        return findUuid("SELECT id FROM organizations WHERE slug = ?", slug);
+    }
+
     public Optional<UUID> findUserIdByEmail(String email) {
-        if (email == null || email.isBlank()) {
+        return findUuid("SELECT id FROM users WHERE lower(email) = lower(?)", email);
+    }
+
+    public Optional<UUID> findPublishedQuizId(UUID organizationId, String title) {
+        if (organizationId == null || title == null || title.isBlank()) {
             return Optional.empty();
         }
-        String sql = "SELECT id FROM users WHERE lower(email) = lower(?)";
+        String sql = """
+                SELECT id FROM quizzes
+                WHERE organization_id = ?
+                  AND lower(title) = lower(?)
+                  AND status = 'PUBLISHED'
+                """;
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, email.trim());
+            statement.setObject(1, organizationId);
+            statement.setString(2, title.trim());
             try (ResultSet rs = statement.executeQuery()) {
                 if (!rs.next()) {
                     return Optional.empty();
@@ -42,19 +53,17 @@ public class UseDirectoryAdapter implements UserDirectoryPort {
                 return Optional.of(rs.getObject(1, UUID.class));
             }
         } catch (Exception ex) {
-            throw new IllegalStateException("Failed to resolve user by email: " + email, ex);
+            throw new IllegalStateException("Seed quiz lookup failed", ex);
         }
     }
 
-    @Override
-    public Optional<UUID> findRoleIdByType(String roleType) {
-        if (roleType == null || roleType.isBlank()) {
+    private Optional<UUID> findUuid(String sql, String value) {
+        if (value == null || value.isBlank()) {
             return Optional.empty();
         }
-        String sql = "SELECT id FROM roles WHERE type = ?";
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, roleType.trim());
+            statement.setString(1, value.trim());
             try (ResultSet rs = statement.executeQuery()) {
                 if (!rs.next()) {
                     return Optional.empty();
@@ -62,7 +71,7 @@ public class UseDirectoryAdapter implements UserDirectoryPort {
                 return Optional.of(rs.getObject(1, UUID.class));
             }
         } catch (Exception ex) {
-            throw new IllegalStateException("Failed to resolve role by type: " + roleType, ex);
+            throw new IllegalStateException("Seed lookup failed: " + sql, ex);
         }
     }
 }

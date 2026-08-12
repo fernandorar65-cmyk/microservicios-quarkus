@@ -18,6 +18,10 @@ public class GameSessionPanacheRepository implements PanacheRepositoryBase<GameS
         return count("id = ?1", id) > 0;
     }
 
+    public long countByOrganizationIdAndQuizIdAndStatus(UUID organizationId, UUID quizId, String status) {
+        return count("organizationId = ?1 and quizId = ?2 and status = ?3", organizationId, quizId, status);
+    }
+
     public Optional<GameSessionJpaEntity> findByIdWithDetails(UUID id) {
         Optional<GameSessionJpaEntity> found = findByIdOptional(id);
         if (found.isEmpty()) {

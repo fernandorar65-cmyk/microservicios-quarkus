@@ -16,7 +16,7 @@ import kahoot.clabs.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.domain.repository.GameSessionRepository;
 import kahoot.clabs.domain.shared.DomainException;
 
-final class GameSessionSupport {
+public final class GameSessionSupport {
 
     private GameSessionSupport() {
     }
@@ -43,7 +43,7 @@ final class GameSessionSupport {
         return session;
     }
 
-    static void freezeFromSnapshot(GameSession session, PublishedQuizSnapshot snapshot) {
+    public static void freezeFromSnapshot(GameSession session, PublishedQuizSnapshot snapshot) {
         if (!session.getQuestions().isEmpty()) {
             return;
         }
