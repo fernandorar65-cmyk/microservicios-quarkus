@@ -43,17 +43,6 @@ app.seed.enabled=false
 %dev.app.seed.enabled=true
 ```
 
-```yaml
-# identity application.yml
-app:
-  seed:
-    enabled: ${APP_SEED_ENABLED:false}
-"%dev":
-  app:
-    seed:
-      enabled: true
-```
-
 Desactivar: `APP_SEED_ENABLED=false` o quitar perfil `%dev`.
 
 ## SQL legacy

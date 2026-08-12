@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import kahoot.clabs.domain.aggregate.Role;
-import kahoot.clabs.domain.entity.Permission;
 
 public record RoleProjectionSnapshot(
         UUID roleId,
