@@ -33,6 +33,9 @@ public class ManageSessionLifecycleUseCase {
     @Inject
     GameSessionEventPublisher gameSessionEventPublisher;
 
+    /**
+     * Mongo read (if needed) is suspended from JPA via adapter {@code NOT_SUPPORTED}.
+     */
     @Transactional
     public GameSessionResponse start(UUID organizationId, UUID sessionId, HostActionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);

@@ -22,18 +22,19 @@ import kahoot.clabs.domain.shared.DomainException;
 public class CreateGameSessionUseCase {
 
     @Inject
-    GameSessionRepository gameSessionRepository;
-
-    @Inject
     OrganizationMembershipPort organizationMembershipPort;
 
     @Inject
     QuizSnapshotPort quizSnapshotPort;
 
     @Inject
-    GameSessionEventPublisher gameSessionEventPublisher;
+    CreateGameSessionWriter writer;
 
-    @Transactional
+    /**
+     * 1) Read playable quiz from Mongo (outside JPA TX)
+     * 2) Persist session in Postgres (@Transactional writer)
+     * 3) Writer publishes Kafka for Mongo session projection
+     */
     public GameSessionResponse execute(UUID organizationId, CreateGameSessionCommand command) {
         GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
         GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
@@ -43,11 +44,27 @@ public class CreateGameSessionUseCase {
                 .orElseThrow(() -> new DomainException(
                         "Published quiz not found for organization: " + command.quizId()));
 
-        GameSession session = GameSession.create(organizationId, snapshot.quizId(), command.hostUserId());
-        GameSessionSupport.freezeFromSnapshot(session, snapshot);
-        GameSession saved = gameSessionRepository.save(session);
-        gameSessionEventPublisher.publish(
-                GameSessionIntegrationEvent.sessionCreated(GameSessionProjectionSnapshot.from(saved)));
-        return GameSessionResponse.from(saved);
+        return writer.persist(organizationId, command, snapshot);
+    }
+
+    @ApplicationScoped
+    static class CreateGameSessionWriter {
+
+        @Inject
+        GameSessionRepository gameSessionRepository;
+
+        @Inject
+        GameSessionEventPublisher gameSessionEventPublisher;
+
+        @Transactional
+        public GameSessionResponse persist(
+                UUID organizationId, CreateGameSessionCommand command, PublishedQuizSnapshot snapshot) {
+            GameSession session = GameSession.create(organizationId, snapshot.quizId(), command.hostUserId());
+            GameSessionSupport.freezeFromSnapshot(session, snapshot);
+            GameSession saved = gameSessionRepository.save(session);
+            gameSessionEventPublisher.publish(
+                    GameSessionIntegrationEvent.sessionCreated(GameSessionProjectionSnapshot.from(saved)));
+            return GameSessionResponse.from(saved);
+        }
     }
 }
