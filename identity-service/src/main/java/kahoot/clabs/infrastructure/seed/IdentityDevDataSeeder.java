@@ -29,10 +29,6 @@ import kahoot.clabs.domain.repository.UserRepository;
 import kahoot.clabs.domain.valueobject.Password;
 import kahoot.clabs.domain.valueobject.RoleType;
 
-/**
- * Dev seeder: writes Postgres only inside the JTA transaction, then publishes Kafka events.
- * Mongo is updated exclusively by {@code UserIntegrationEventConsumer} (no Mongo inside JPA TX).
- */
 @ApplicationScoped
 public class IdentityDevDataSeeder {
 
