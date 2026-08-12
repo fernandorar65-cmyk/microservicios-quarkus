@@ -20,14 +20,6 @@ import kahoot.clabs.domain.repository.GameSessionRepository;
 import kahoot.clabs.domain.valueobject.SessionStatus;
 import kahoot.clabs.infrastructure.persistence.postgres.repository.GameSessionPanacheRepository;
 
-/**
- * Dev seeder (gameplay):
- * <ul>
- *   <li>Write model seed uses only PostgreSQL (JDBC lookup + JPA) inside {@code @Transactional}</li>
- *   <li>Mongo session projection via Kafka after commit ({@code gameplay.session.events})</li>
- * </ul>
- * Never call {@code QuizSnapshotPort} / Mongo from {@link #seedPostgres()}.
- */
 @ApplicationScoped
 public class GameplayDevDataSeeder {
 
