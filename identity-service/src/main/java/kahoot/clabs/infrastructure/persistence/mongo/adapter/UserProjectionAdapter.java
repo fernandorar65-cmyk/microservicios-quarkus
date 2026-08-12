@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.write.UserProjectionPort;
 import kahoot.clabs.application.readmodel.UserImageReadModel;
 import kahoot.clabs.application.readmodel.UserPermissionReadModel;
@@ -26,11 +28,13 @@ public class UserProjectionAdapter implements UserProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(UserReadModel readModel) {
         userMongoRepository.persistOrUpdate(toDocument(readModel));
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void deleteById(UUID id) {
         userMongoRepository.deleteById(id);
     }

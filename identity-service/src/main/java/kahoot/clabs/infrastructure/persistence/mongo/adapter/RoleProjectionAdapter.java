@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.application.port.write.RoleProjectionPort;
 import kahoot.clabs.application.readmodel.RolePermissionReadModel;
@@ -23,6 +25,7 @@ public class RoleProjectionAdapter implements RoleProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(RoleReadModel readModel) {
         RoleReadDocument document = new RoleReadDocument();
         document.setId(readModel.getId());

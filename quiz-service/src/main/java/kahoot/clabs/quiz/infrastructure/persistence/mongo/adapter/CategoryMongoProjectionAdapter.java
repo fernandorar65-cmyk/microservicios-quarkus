@@ -3,6 +3,8 @@ package kahoot.clabs.quiz.infrastructure.persistence.mongo.adapter;
 import java.time.Instant;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.quiz.application.port.write.CategoryProjectionPort;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
@@ -20,6 +22,7 @@ public class CategoryMongoProjectionAdapter implements CategoryProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(CategoryReadModel readModel) {
         CategoryReadDocument existing = categoryMongoRepository.findById(readModel.getId());
         CategoryReadDocument document = toDocument(readModel, existing);
@@ -27,6 +30,7 @@ public class CategoryMongoProjectionAdapter implements CategoryProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void deleteById(java.util.UUID id) {
         categoryMongoRepository.deleteById(id);
     }

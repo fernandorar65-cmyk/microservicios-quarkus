@@ -5,6 +5,8 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.write.GameSessionProjectionPort;
 import kahoot.clabs.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.application.readmodel.LeaderboardReadModel;
@@ -35,6 +37,7 @@ public class GameSessionProjectionAdapter implements GameSessionProjectionPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(GameSessionReadModel session, LeaderboardReadModel leaderboard) {
         gameSessionMongoRepository.persistOrUpdate(toSessionDocument(session));
         leaderboardMongoRepository.persistOrUpdate(toLeaderboardDocument(leaderboard));

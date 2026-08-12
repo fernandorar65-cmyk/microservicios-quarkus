@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.application.port.read.OrganizationReadPort;
 import kahoot.clabs.application.readmodel.OrganizationReadModel;
@@ -20,11 +22,13 @@ public class OrganizationReadAdapter implements OrganizationReadPort {
     OrganizationReadMapper mapper;
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<OrganizationReadModel> findById(UUID id) {
         return repository.findByIdOptional(id).map(mapper::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<OrganizationReadModel> findBySlug(String slug) {
         return repository.findBySlug(slug).map(mapper::toReadModel);
     }

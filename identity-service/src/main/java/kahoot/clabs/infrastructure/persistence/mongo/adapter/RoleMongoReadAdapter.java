@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.read.RoleReadPort;
 import kahoot.clabs.application.readmodel.RolePermissionReadModel;
 import kahoot.clabs.application.readmodel.RoleReadModel;
@@ -23,11 +25,13 @@ public class RoleMongoReadAdapter implements RoleReadPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<RoleReadModel> findById(UUID id) {
         return roleMongoRepository.findByIdOptional(id).map(this::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<RoleReadModel> findByType(String type) {
         return roleMongoRepository.find("type", type).firstResultOptional().map(this::toReadModel);
     }

@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.quiz.application.port.read.QuizReadPort;
 import kahoot.clabs.quiz.application.readmodel.QuizAnswerOptionReadModel;
 import kahoot.clabs.quiz.application.readmodel.QuizAssetReadModel;
@@ -33,11 +35,13 @@ public class QuizMongoReadAdapter implements QuizReadPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<QuizReadModel> findById(UUID id) {
         return quizMongoRepository.findByIdOptional(id).map(this::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public List<QuizReadModel> findByOrganization(UUID organizationId) {
         return quizMongoRepository.list("organizationId", organizationId).stream()
                 .map(this::toReadModel)

@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.quiz.application.port.read.CategoryReadPort;
 import kahoot.clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.quiz.infrastructure.persistence.mongo.document.CategoryReadDocument;
@@ -20,11 +22,13 @@ public class CategoryMongoReadAdapter implements CategoryReadPort {
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<CategoryReadModel> findById(UUID id) {
         return categoryMongoRepository.findByIdOptional(id).map(this::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public List<CategoryReadModel> findByOrganization(UUID organizationId) {
         return categoryMongoRepository.list("organizationId", organizationId).stream()
                 .map(this::toReadModel)

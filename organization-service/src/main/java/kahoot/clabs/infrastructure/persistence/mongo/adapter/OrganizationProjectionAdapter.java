@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import jakarta.inject.Inject;
 import kahoot.clabs.application.port.write.OrganizationProjectionPort;
 import kahoot.clabs.application.readmodel.OrganizationMemberReadModel;
@@ -20,11 +22,13 @@ public class OrganizationProjectionAdapter implements OrganizationProjectionPort
     OrganizationMongoRepository repository;
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void save(OrganizationReadModel readModel) {
         repository.persistOrUpdate(toDocument(readModel));
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public void deleteById(UUID id) {
         repository.deleteById(id);
     }

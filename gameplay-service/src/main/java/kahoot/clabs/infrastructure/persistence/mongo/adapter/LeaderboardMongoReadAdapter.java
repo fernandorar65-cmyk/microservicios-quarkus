@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.read.LeaderboardReadPort;
 import kahoot.clabs.application.readmodel.LeaderboardReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.LeaderboardReadMapper;
@@ -20,6 +22,7 @@ public class LeaderboardMongoReadAdapter implements LeaderboardReadPort {
     LeaderboardReadMapper mapper;
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<LeaderboardReadModel> findBySessionId(UUID sessionId) {
         return repository.find("sessionId", sessionId).firstResultOptional().map(mapper::toReadModel);
     }

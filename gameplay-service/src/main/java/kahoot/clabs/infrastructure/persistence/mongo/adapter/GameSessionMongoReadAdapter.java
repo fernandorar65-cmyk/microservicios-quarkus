@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import kahoot.clabs.application.port.read.GameSessionReadPort;
 import kahoot.clabs.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.infrastructure.persistence.mongo.mapper.GameSessionReadMapper;
@@ -23,11 +25,13 @@ public class GameSessionMongoReadAdapter implements GameSessionReadPort {
     GameSessionReadMapper mapper;
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public Optional<GameSessionReadModel> findById(UUID id) {
         return repository.find("_id", id).firstResultOptional().map(mapper::toReadModel);
     }
 
     @Override
+    @Transactional(TxType.NOT_SUPPORTED)
     public List<GameSessionReadModel> search(UUID organizationId, Collection<String> statuses, UUID quizId) {
         StringBuilder query = new StringBuilder("organizationId = ?1");
         List<Object> params = new ArrayList<>();

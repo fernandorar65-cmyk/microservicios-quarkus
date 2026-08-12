@@ -1,7 +1,5 @@
 package kahoot.clabs.infrastructure.messaging.kafka;
 
-import java.util.UUID;
-
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.jboss.logging.Logger;
 
@@ -15,17 +13,10 @@ import kahoot.clabs.application.event.CatalogItemUpsertedEvent;
 import kahoot.clabs.application.event.OrganizationIntegrationEvent;
 import kahoot.clabs.application.port.write.OrganizationProjectionPort;
 import kahoot.clabs.application.readmodel.OrganizationReadModels;
-import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationDepartmentReadDocument;
-import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationJobReadDocument;
-import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationMemberStatusReadDocument;
-import kahoot.clabs.infrastructure.persistence.mongo.document.OrganizationStatusReadDocument;
-import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationDepartmentMongoRepository;
-import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationJobMongoRepository;
-import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationMemberStatusMongoRepository;
-import kahoot.clabs.infrastructure.persistence.mongo.repository.OrganizationStatusMongoRepository;
+import kahoot.clabs.infrastructure.persistence.mongo.adapter.OrganizationCatalogProjectionAdapter;
 
 /**
- * Projects organization read models in Mongo outside the JPA write transaction.
+ * Projects organization / catalog read models in Mongo outside any JPA write transaction.
  */
 @ApplicationScoped
 public class OrganizationIntegrationEventConsumer {
@@ -34,25 +25,16 @@ public class OrganizationIntegrationEventConsumer {
 
     private final ObjectMapper objectMapper;
     private final OrganizationProjectionPort organizationProjectionPort;
-    private final OrganizationStatusMongoRepository statusMongoRepository;
-    private final OrganizationMemberStatusMongoRepository memberStatusMongoRepository;
-    private final OrganizationDepartmentMongoRepository departmentMongoRepository;
-    private final OrganizationJobMongoRepository jobMongoRepository;
+    private final OrganizationCatalogProjectionAdapter catalogProjectionAdapter;
 
     @Inject
     public OrganizationIntegrationEventConsumer(
             ObjectMapper objectMapper,
             OrganizationProjectionPort organizationProjectionPort,
-            OrganizationStatusMongoRepository statusMongoRepository,
-            OrganizationMemberStatusMongoRepository memberStatusMongoRepository,
-            OrganizationDepartmentMongoRepository departmentMongoRepository,
-            OrganizationJobMongoRepository jobMongoRepository) {
+            OrganizationCatalogProjectionAdapter catalogProjectionAdapter) {
         this.objectMapper = objectMapper;
         this.organizationProjectionPort = organizationProjectionPort;
-        this.statusMongoRepository = statusMongoRepository;
-        this.memberStatusMongoRepository = memberStatusMongoRepository;
-        this.departmentMongoRepository = departmentMongoRepository;
-        this.jobMongoRepository = jobMongoRepository;
+        this.catalogProjectionAdapter = catalogProjectionAdapter;
     }
 
     @Incoming("organization-events-in")
@@ -106,49 +88,23 @@ public class OrganizationIntegrationEventConsumer {
             LOG.warn("Ignoring catalog event without payload");
             return;
         }
-
-        UUID id = payload.id();
-        String name = payload.name();
-        String description = payload.description();
-        switch (payload.catalogKind()) {
-            case CatalogItemProjectionSnapshot.KIND_STATUS -> {
-                OrganizationStatusReadDocument document = new OrganizationStatusReadDocument();
-                document.setId(id);
-                document.setName(name);
-                document.setDescription(description);
-                statusMongoRepository.persistOrUpdate(document);
-            }
-            case CatalogItemProjectionSnapshot.KIND_MEMBER_STATUS -> {
-                OrganizationMemberStatusReadDocument document = new OrganizationMemberStatusReadDocument();
-                document.setId(id);
-                document.setName(name);
-                document.setDescription(description);
-                memberStatusMongoRepository.persistOrUpdate(document);
-            }
-            case CatalogItemProjectionSnapshot.KIND_DEPARTMENT -> {
-                OrganizationDepartmentReadDocument document = new OrganizationDepartmentReadDocument();
-                document.setId(id);
-                document.setName(name);
-                document.setDescription(description);
-                departmentMongoRepository.persistOrUpdate(document);
-            }
-            case CatalogItemProjectionSnapshot.KIND_JOB -> {
-                OrganizationJobReadDocument document = new OrganizationJobReadDocument();
-                document.setId(id);
-                document.setName(name);
-                document.setDescription(description);
-                jobMongoRepository.persistOrUpdate(document);
-            }
-            default -> {
-                LOG.warnf("Unknown catalogKind=%s", payload.catalogKind());
-                return;
-            }
+        if (isUnknownKind(payload.catalogKind())) {
+            LOG.warnf("Unknown catalogKind=%s", payload.catalogKind());
+            return;
         }
+        catalogProjectionAdapter.upsert(payload);
         LOG.infof(
                 "Projected %s kind=%s id=%s eventId=%s",
                 catalogEvent.eventType(),
                 payload.catalogKind(),
-                id,
+                payload.id(),
                 catalogEvent.eventId());
+    }
+
+    private static boolean isUnknownKind(String kind) {
+        return !CatalogItemProjectionSnapshot.KIND_STATUS.equals(kind)
+                && !CatalogItemProjectionSnapshot.KIND_MEMBER_STATUS.equals(kind)
+                && !CatalogItemProjectionSnapshot.KIND_DEPARTMENT.equals(kind)
+                && !CatalogItemProjectionSnapshot.KIND_JOB.equals(kind);
     }
 }
